@@ -33,8 +33,8 @@ let nextChar = (state) => {
   while (state.position < String.length(state.input)) {
     let c = String.charAt(state.position, state.input)
 
-    state.position += 1
     if(c == ' ') {
+    state.position += 1
       continue;
     }
 
@@ -59,7 +59,6 @@ provide let nextToken = state => {
   
   if(char == '+') {
     state.position += 1
-
     return tokenFromChar(char, Plus)
   }
 
@@ -68,19 +67,17 @@ provide let nextToken = state => {
     return tokenFromChar(char, Asterisk)
   }
 
-  /**/
-  
-  else if(Char.isAsciiDigit(char)) {
+  if(Char.isAsciiDigit(char)) {
     while(Char.isAsciiDigit(char)) {
-      char = nextChar(state)
-
       Buffer.addChar(char, buffer)
+      
+      state.position += 1
+      char = nextChar(state)
     }
 
-    return Ok({ text: Buffer.toString(buffer), kind: Number })
+    return { text: Buffer.toString(buffer), kind: Number }
   }
-  */
-  
+
   return tokenFromChar(char, Unknown)
 }
 
