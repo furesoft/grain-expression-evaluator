@@ -105,6 +105,7 @@ provide let nextToken = state => {
 
     char = nextChar(state);
     if(char == '=') {
+      state.position += 1
       return tokenFromString(":=", ColonEquals)
     }
   }

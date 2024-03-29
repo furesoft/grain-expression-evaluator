@@ -14,6 +14,6 @@ from "wasi/file" include File
 
 let value = Evaluator.eval("yeah := 42")
 
-//let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
+let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
 
 print(value)

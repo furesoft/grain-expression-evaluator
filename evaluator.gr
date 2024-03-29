@@ -1,42 +1,50 @@
 module Evaluator
 
 from "./parsing.gr" include Parser
-from "map" include Map
 from "./tree.gr" include Tree
+from "map" include Map
 
 provide record Scope {
-    variables: Map
+    variables: Map.Map<String, Number>
 }
 
-let rec visit = (tree, scope) => {
+let variables = Map.make()
+
+Map.set("pi", 3.14, variables)
+
+let scope = {
+    variables: variables
+}
+
+let rec visit = (tree) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
-        Tree.GroupExpression(inner) => visit(inner, scope),
-        Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right, scope),
-        Tree.VariableReferenceExpression(id) => visitVariableRef(id, scope),
+        Tree.GroupExpression(inner) => visit(inner),
+        Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right),
+        Tree.VariableReferenceExpression(id) => visitVariableRef(id),
         _ => 0
     }
 }
-and visitBinary = (left, op, right, scope) => {
-    let evaluatedLeft = visit(left, scope)
-    let evaluatedRight = visit(right, scope)
+and visitBinary = (left, op, right) => {
+    let evaluatedLeft = visit(left)
+    let evaluatedRight = visit(right)
 
     match(op) {
         "+" => evaluatedLeft + evaluatedRight,
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
-        ":=" => visitVariableBinding(left, right, scope),
+        ":=" => visitVariableBinding(left, right),
         _ => 0
     }
 }
-and visitVariableRef = (id, scope) => {
+and visitVariableRef = (id) => {
     match(Map.get(id, scope.variables)) {
         Some(value) => value,
         None => 0
     }
 }
-and visitVariableBinding = (name, value, scope) => {
+and visitVariableBinding = (name, value) => {
     let visitedValue = visit(value)
 
     match(name) {
@@ -50,15 +58,9 @@ and visitVariableBinding = (name, value, scope) => {
 }
 
 provide let eval = (input) => {
-    let variables = Map.make()
-
-    Map.set("pi", 3.14, variables)
-
-    let scope = {
-        variables
-    }
+    
 
     let tree = Parser.parse(input)
 
-    visit(tree, scope)
+    visit(tree)
 }
