@@ -37,9 +37,8 @@ let nextToken = state => {
 
   if(Char.isAsciiDigit(c)) {
     while(Char.isAsciiDigit(c)) {
-      state.position += 1
-
       c = nextChar(state)
+      
       Set.add(c, buffer)
     }
 
