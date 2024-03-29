@@ -5,11 +5,18 @@ from "string" include String
 from "list" include List
 from "char" include Char
 
+
+record LexingState {
+  mut position: Number,
+  input: String
+}
+
 provide enum rec TokenType {
     Plus,
     Minus,
     Asterisk,
     Slash,
+    Number,
     Invalid
 }
 
@@ -19,39 +26,41 @@ provide record Token {
 }
 
 let nextChar = state => {
+  state.position += 1
+  
   return String.charAt(state.position, state.input)
 }
 
-let isNumber = c => Char.isAsciiDigit(c) 
-
 let nextToken = state => {
-  let c = nextChar(state)
+  let mut c = nextChar(state)
+  let buffer = Set.make()
 
-  if(isNumber(c)) {
-    while(isNumber(c)) {
-      //todo
+  if(Char.isAsciiDigit(c)) {
+    while(Char.isAsciiDigit(c)) {
+      state.position += 1
+
+      c = nextChar(state)
+      Set.add(c, buffer)
     }
+
+    return { text: String.implode(Set.toArray(buffer)), kind: Number}
   }
 
-  return { text: "", kind: Invalid }
+  return { text: Char.toString(c), kind: Invalid }
 }
 
-record LexingState {
-  mut position: Number,
-  input: String
-}
 
 let isEndOfInput = state => state.position >= String.length(state.input)
 
 provide let lex = input => {
   let state : LexingState = {
-    position: 0,
+    position: -1,
     input: input
   }
 
   let tokens = Set.make()
 
-  while(isEndOfInput(state)) {
+  while(!isEndOfInput(state)) {
     Set.add(nextToken(state), tokens)
   }
 
