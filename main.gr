@@ -3,6 +3,6 @@ module Hello
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
 
-let token = nextToken("1 + 2 * 3")
+let token = Lexing.nextToken("1 + 2 * 3")
 
 print(token.text)

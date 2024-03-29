@@ -13,6 +13,6 @@ provide record Token {
   kind: TokenType
 }
 
-provide let nextToken = (input: String) => {
+provide let nextToken = input => {
   return { text: "", kind: Invalid }
 }
