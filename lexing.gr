@@ -1,6 +1,6 @@
 module Lexing
 
-from "set" include Set
+from "buffer" include Buffer
 from "string" include String
 from "list" include List
 from "char" include Char
@@ -17,6 +17,7 @@ provide enum rec TokenType {
     Asterisk,
     Slash,
     Number,
+    EndOfInput,
     Invalid
 }
 
@@ -25,42 +26,68 @@ provide record Token {
   kind: TokenType
 }
 
-let nextChar = state => {
-  state.position += 1
-  
-  return String.charAt(state.position, state.input)
+provide enum LexingError {
+  UnexpectedEndOfInput,
+  UnkownChar(Char)
 }
-
-let nextToken = state => {
-  let mut c = nextChar(state)
-  let buffer = Set.make()
-
-  if(Char.isAsciiDigit(c)) {
-    while(Char.isAsciiDigit(c)) {
-      c = nextChar(state)
-      
-      Set.add(c, buffer)
-    }
-
-    return { text: String.implode(Set.toArray(buffer)), kind: Number}
-  }
-
-  return { text: Char.toString(c), kind: Invalid }
-}
-
 
 let isEndOfInput = state => state.position >= String.length(state.input)
 
+let nextChar = (state) => {
+  state.position += 1
+  print(state.position)
+
+  if (state.position >= String.length(state.input)) {
+    Err(UnexpectedEndOfInput)
+  } else {
+    Ok(String.charAt(state.position, state.input))
+  }
+}
+
+let buffer = Buffer.make(256)
+
+let nextToken = state => {
+  Buffer.clear(buffer)
+
+  if(isEndOfInput(state)) {
+    return Ok({ text: "", kind: EndOfInput })
+  }
+
+  let char = match (nextChar(state)) {
+    Ok(c) => c,
+    Err(e) => return Err(e)
+  }
+
+  if(Char.isAsciiDigit(char)) {
+    while(Char.isAsciiDigit(char)) {
+      let char = match (nextChar(state)) {
+        Ok(c) => c,
+        Err(e) => return Err(e)
+      }
+
+      Buffer.addChar(char, buffer)
+    }
+
+    return Ok({ text: Buffer.toString(buffer), kind: Number })
+  }
+
+  return Err(UnkownChar(char))
+}
+
+
 provide let lex = input => {
-  let state : LexingState = {
+  let state = {
     position: -1,
     input: input
   }
 
-  let tokens = Set.make()
+  let tokens = []
 
   while(!isEndOfInput(state)) {
-    Set.add(nextToken(state), tokens)
+    match(nextToken(state)) {
+      Ok(token) => List.append(token, tokens),
+      Err(err) => print(err)
+    }
   }
 
   return tokens

@@ -2,11 +2,15 @@ module Hello
 
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
-from "set" include Set
+from "list" include List
 
-print("start lexing");
-let tokens = Lexing.lex("1 + 2 * 3")
-
-Set.forEach(token => {
+let printTokens = tokens => List.forEach(token => {
     print(token)
 }, tokens)
+
+print("start lexing");
+
+match(Lexing.lex("1 + 2 * 3")) {
+    Ok(tokens) => printTokens(tokens),
+    Err(err) => print(err)
+}
