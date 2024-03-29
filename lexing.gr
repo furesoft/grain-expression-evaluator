@@ -30,14 +30,12 @@ provide record Token {
 let isEndOfInput = state => state.position >= String.length(state.input)
 
 let nextChar = (state) => {
-  state.position += 1
-  
   while (state.position < String.length(state.input)) {
     let c = String.charAt(state.position, state.input)
 
     if(c == ' ') {
       state.position += 1
-
+      
       continue;
     }
 
@@ -74,6 +72,7 @@ provide let nextToken = state => {
     while(Char.isAsciiDigit(char)) {
       Buffer.addChar(char, buffer)
       
+      state.position += 1
       char = nextChar(state)
     }
 
