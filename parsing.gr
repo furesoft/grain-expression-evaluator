@@ -105,8 +105,8 @@ and parseAdditive = (state) => {
 and parseExpression = (state) => {
     let left = parseAdditive(state);
 
-    if(expects(state, ColonEquals)) {
-        return Tree.BinaryExpression(left, ":=", parseExpression(state))
+    if(expects(state, Equals)) {
+        return Tree.BinaryExpression(left, "=", parseExpression(state))
     }
 
     return left;

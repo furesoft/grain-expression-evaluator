@@ -23,7 +23,7 @@ provide enum rec TokenType {
     CloseParen,
     Unknown,
     Identifier,
-    ColonEquals,
+    Equals,
     Empty
 }
 
@@ -99,15 +99,9 @@ provide let nextToken = state => {
     return tokenFromChar(char, CloseParen)
   }
 
-  if(char == ':') {
-    char = nextChar(state);
+  if(char == '=') {
     state.position += 1
-
-    char = nextChar(state);
-    if(char == '=') {
-      state.position += 1
-      return tokenFromString(":=", ColonEquals)
-    }
+    return tokenFromChar(char, Equals)
   }
 
   if(Char.isAsciiDigit(char)) {

@@ -12,7 +12,7 @@ from "wasi/file" include File
 //let input = File.fdRead(File.stdin, 40000)
 //let input = Result.unwrap(input)
 
-let value = Evaluator.eval("yeah := 42")
+let value = Evaluator.eval("yeah = 42")
 
 let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
 

@@ -34,7 +34,7 @@ and visitBinary = (left, op, right) => {
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
-        ":=" => visitVariableBinding(left, right),
+        "=" => visitVariableBinding(left, right),
         _ => 0
     }
 }
@@ -58,8 +58,6 @@ and visitVariableBinding = (name, value) => {
 }
 
 provide let eval = (input) => {
-    
-
     let tree = Parser.parse(input)
 
     visit(tree)
