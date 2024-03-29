@@ -5,11 +5,27 @@ from "./tree.gr" include Tree
 from "map" include Map
 from "./tree.gr" include Tree
 
+let rec visit = (tree) => {
+    match(tree) {
+        Tree.NumberExpression(num) => num,
+        Tree.BinaryExpression(left, op, right) => {
+            let evaluatedLeft = visit(left)
+            let evaluatedRight = visit(right)
 
-
-provide let eval = (input) => {
-    let tree = Parser.parse("1+2*3-4")
-
-    
+            match(op) {
+                "+" => evaluatedLeft + evaluatedRight,
+                "-" => evaluatedLeft - evaluatedRight,
+                "*" => evaluatedLeft * evaluatedRight,
+                "/" => evaluatedLeft / evaluatedRight,
+                _ => 0
+            }
+        },
+        _ => 0
+    }
 }
 
+provide let eval = (input) => {
+    let tree = Parser.parse(input)
+
+    visit(tree)
+}
