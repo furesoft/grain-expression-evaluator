@@ -3,14 +3,17 @@ module Hello
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
 from "list" include List
+from "result" include Result
 
-let printTokens = tokens => List.forEach(token => {
+ let state: Lexing.LexingState = {
+    position: 0,
+    input: "1 + 2 * 3"
+ }
+
+let mut token = Result.unwrap(Lexing.nextToken(state))
+
+  while(token.kind != EndOfInput) {
     print(token)
-}, tokens)
 
-print("start lexing");
-
-match(Lexing.lex("1 + 2 * 3")) {
-    Ok(tokens) => printTokens(tokens),
-    Err(err) => print(err)
-}
+    token = Result.unwrap(Lexing.nextToken(state))
+  }

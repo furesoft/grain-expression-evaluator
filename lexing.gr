@@ -7,7 +7,7 @@ from "char" include Char
 from "result" include Result
 
 
-record LexingState {
+provide record LexingState {
   mut position: Number,
   input: String
 }
@@ -35,73 +35,80 @@ provide enum LexingError {
 let isEndOfInput = state => state.position >= String.length(state.input)
 
 let nextChar = (state) => {
-  state.position += 1
-  
-  if (state.position >= String.length(state.input)) {
-    Err(UnexpectedEndOfInput)
-  } else {
-    Ok(String.charAt(state.position, state.input))
+  while (state.position < String.length(state.input)) {
+    let c = String.charAt(state.position, state.input)
+
+    state.position += 1
+    if(c == ' ') {
+      continue;
+    }
+
+    return c
   }
+
+  return '\0'
 }
 
 let buffer = Buffer.make(256)
 
-let skipWhitespace = state => {
-  let char = Result.unwrap(nextChar(state))
+let tokenFromChar = (char, kind) => Ok({ text: Char.toString(char), kind: kind })
 
-  print(state)
-  while(char == ' ') {
-    state.position += 1
-  }
-
-}
-
-let nextToken = state => {
+provide let nextToken = state => {
   Buffer.clear(buffer)
 
-  let mut char = match (nextChar(state)) {
-    Ok(c) => c,
-    Err(e) => return Ok({ text: "", kind: EndOfInput })
+  let mut char = nextChar(state)
+
+  if(char == '\0') {
+    return tokenFromChar(char, EndOfInput)
+  }
+  
+  if(char == '+') {
+    state.position += 1
+
+    return tokenFromChar(char, Plus)
   }
 
+  if(char == '*') {
+    state.position += 1
+    return tokenFromChar(char, Asterisk)
+  }
+
+  if(char == '1') {
+    state.position += 1
+    return tokenFromChar(char, Number)
+  }
+
+  if(char == '2') {
+    state.position += 1
+    return tokenFromChar(char, Number)
+  }
+
+  if(char == '3') {
+    state.position += 1
+    return tokenFromChar(char, Number)
+  }
+
+  /**/
   if(char == '+') {
-    return Ok({ text: Char.toString(char), kind: Plus })
+    state.position += 1
+    return tokenFromChar(char, Plus)
   }
   else if(char == '*') {
-    return Ok({ text: Char.toString(char), kind: Asterisk })
+    state.position += 1
+    return tokenFromChar(char, Asterisk)
   }
   else if(Char.isAsciiDigit(char)) {
     while(Char.isAsciiDigit(char)) {
-      char = match (nextChar(state)) {
-        Ok(c) => c,
-        Err(e) => return Err(e)
-      }
+      char = nextChar(state)
 
       Buffer.addChar(char, buffer)
     }
 
     return Ok({ text: Buffer.toString(buffer), kind: Number })
   }
-
+  */
+  
   return Err(UnkownChar(char))
 }
 
-
-provide let lex = input => {
-  let state = {
-    position: -1,
-    input: input
-  }
-
-  let mut tokens = []
-
-  while(!isEndOfInput(state)) {
-    match(nextToken(state)) {
-      Ok(token) => tokens = List.insert(0, token, tokens),
-      Err(err) => print(err)
-    }
-  }
-
-  return Ok(List.reverse(tokens))
-}
 
