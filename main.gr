@@ -2,18 +2,10 @@ module Hello
 
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
+from "./parsing.gr" include Parser
 from "list" include List
 from "result" include Result
 
- let state: Lexing.LexingState = {
-    position: 0,
-    input: "1 + 2 * 3"
- }
+let tree = Parser.parse("1 + 2 * 3 - 1")
 
-let mut token = Lexing.nextToken(state)
-
-  while(token.kind != EndOfInput) {
-    print(token)
-
-    token = Lexing.nextToken(state)
-  }
+print(tree)

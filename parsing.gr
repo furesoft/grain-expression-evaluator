@@ -1,0 +1,73 @@
+module Parser
+
+from "./lexing.gr" include Lexing
+from "./expression.gr" include Tree
+from "number" include Number
+
+provide record ParsingState {
+    mut currentToken: Lexing.Token,
+    mut nextToken: Lexing.Token,
+    lexerState: Lexing.LexingState
+}
+
+let init = (input) => {
+    {
+        currentToken: Lexing.emptyToken,
+        nextToken: Lexing.emptyToken,
+        lexerState: {
+            position: 0,
+            input: input
+        }
+    }
+}
+
+let nextToken = (state) => {
+    state.currentToken = state.nextToken
+    state.nextToken = Lexing.nextToken(state.lexerState)
+
+    return state.currentToken
+}
+
+
+let parseAtom = state => {
+    let mut token = nextToken(state)
+
+    match(Number.parse(token.text)) {
+        Ok(number) => Tree.NumberExpression(number),
+        Err(err) => Tree.Invalid()
+    }
+}
+
+let rec parseBinary = state => {
+    let left = parseAtom(state);
+
+    if(state.nextToken.kind == Plus) {
+        nextToken(state)
+
+        return Tree.BinaryExpression(left, "+", parseBinary(state))
+    }
+    else if(state.nextToken.kind == Asterisk) {
+        nextToken(state)
+
+        return Tree.BinaryExpression(left, "*", parseBinary(state))
+    }
+    else if(state.nextToken.kind == Slash) {
+        nextToken(state)
+
+        return Tree.BinaryExpression(left, "/", parseBinary(state))
+    }
+    else if(state.nextToken.kind == Minus) {
+        nextToken(state)
+
+        return Tree.BinaryExpression(left, "-", parseBinary(state))
+    }
+
+    return left
+}
+
+provide let parse = input => {
+    let state = init(input)
+    nextToken(state)
+
+    parseBinary(state)
+}

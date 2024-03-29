@@ -19,12 +19,18 @@ provide enum rec TokenType {
     Slash,
     Number,
     EndOfInput,
-    Unknown
+    Unknown,
+    Empty
 }
 
 provide record Token {
   text: String,
   kind: TokenType
+}
+
+provide let emptyToken = {
+  text: "",
+  kind: Empty
 }
 
 let isEndOfInput = state => state.position >= String.length(state.input)
@@ -66,6 +72,16 @@ provide let nextToken = state => {
   if(char == '*') {
     state.position += 1
     return tokenFromChar(char, Asterisk)
+  }
+
+   if(char == '-') {
+    state.position += 1
+    return tokenFromChar(char, Minus)
+  }
+
+   if(char == '/') {
+    state.position += 1
+    return tokenFromChar(char, Slash)
   }
 
   if(Char.isAsciiDigit(char)) {
