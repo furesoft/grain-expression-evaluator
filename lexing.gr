@@ -3,6 +3,7 @@ module Lexing
 from "set" include Set
 from "string" include String
 from "list" include List
+from "char" include Char
 
 provide enum rec TokenType {
     Plus,
@@ -17,12 +18,20 @@ provide record Token {
   kind: TokenType
 }
 
-let nextChar = (state) => {
+let nextChar = state => {
   return String.charAt(state.position, state.input)
 }
 
-let nextToken = (state) => {
+let isNumber = c => Char.isAsciiDigit(c) 
+
+let nextToken = state => {
   let c = nextChar(state)
+
+  if(isNumber(c)) {
+    while(isNumber(c)) {
+      //todo
+    }
+  }
 
   return { text: "", kind: Invalid }
 }
