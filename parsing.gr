@@ -58,18 +58,18 @@ let expects = (state, kind) => {
     }
 }
 
-let parseFactor = (state) => {
+let rec parseFactor = (state) => {
     if(expects(state, OpenParen)) {
         let inner = parseExpression(state)
-        consume(state)
+        consume(state, CloseParen)
 
-        Tree.GroupExpression(inner)
+        return Tree.GroupExpression(inner)
     }
     
-    parseAtom(state)
+    return parseAtom(state)
 }
 
-let rec parseTerm = (state) => {
+and parseTerm = (state) => {
     let left = parseFactor(state);
 
     if(expects(state, Asterisk)) {
@@ -81,8 +81,7 @@ let rec parseTerm = (state) => {
 
     return left;
 }
-
-let rec parseExpression = (state) => {
+and parseExpression = (state) => {
     let left = parseTerm(state);
 
     if(expects(state, Plus)) {

@@ -12,6 +12,6 @@ from "wasi/file" include File
 //let input = File.fdRead(File.stdin, 40000)
 //let input = Result.unwrap(input)
 
-let value = Evaluator.eval("1+2*3-4")
+let value = Evaluator.eval("(1+2)*3-4")
 
 print(value)
