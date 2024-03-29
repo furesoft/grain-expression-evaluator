@@ -1,0 +1,18 @@
+module Lexing
+
+provide enum rec TokenType {
+    Plus,
+    Minus,
+    Asterisk,
+    Slash,
+    Invalid
+}
+
+provide record Token {
+  text: String,
+  kind: TokenType
+}
+
+provide let nextToken = (input: String) => {
+  return { text: "", kind: Invalid }
+}

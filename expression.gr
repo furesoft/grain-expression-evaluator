@@ -1,0 +1,6 @@
+module Tree
+
+provide enum rec Expression {
+    UnaryExpression(String, Expression),
+    BinaryExpression(Expression, String, Expression)
+}
