@@ -6,6 +6,8 @@ from "set" include Set
 
 let tokens = Lexing.lex("1 + 2 * 3")
 
+print("Hello world")
+
 Set.forEach(token => {
     print(token)
 }, tokens)

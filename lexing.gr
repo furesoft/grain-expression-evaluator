@@ -17,16 +17,35 @@ provide record Token {
   kind: TokenType
 }
 
-let position = 0
+let nextChar = (state) => {
+  return String.charAt(state.position, state.input)
+}
 
-let nextToken = () => {
+let nextToken = (state) => {
+  let c = nextChar(state)
+
   return { text: "", kind: Invalid }
 }
 
+record LexingState {
+  mut position: Number,
+  input: String
+}
+
+let isEndOfInput = state => state.position >= String.length(state.input)
+
 provide let lex = input => {
+  let state : LexingState = {
+    position: 0,
+    input: input
+  }
+
   let tokens = Set.make()
 
-  while(position < String.length(input)) {
-    Set.add(nextToken(), tokens)
+  while(isEndOfInput(state)) {
+    Set.add(nextToken(state), tokens)
   }
+
+  return tokens
 }
+
