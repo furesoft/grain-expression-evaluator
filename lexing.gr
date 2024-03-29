@@ -27,6 +27,6 @@ provide let lex = input => {
   let tokens = Set.make()
 
   while(position < String.length(input)) {
-    tokens.add(nextToken())
+    Set.add(nextToken(), tokens)
   }
 }

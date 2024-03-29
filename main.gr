@@ -2,7 +2,10 @@ module Hello
 
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
+from "set" include Set
 
-let token = Lexing.nextToken("1 + 2 * 3")
+let tokens = Lexing.lex("1 + 2 * 3")
 
-print(token.text)
+Set.forEach(token => {
+    print(token)
+}, tokens)
