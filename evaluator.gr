@@ -8,19 +8,29 @@ let rec visit = (tree) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
         Tree.GroupExpression(inner) => visit(inner),
-        Tree.BinaryExpression(left, op, right) => {
-            let evaluatedLeft = visit(left)
-            let evaluatedRight = visit(right)
-
-            match(op) {
-                "+" => evaluatedLeft + evaluatedRight,
-                "-" => evaluatedLeft - evaluatedRight,
-                "*" => evaluatedLeft * evaluatedRight,
-                "/" => evaluatedLeft / evaluatedRight,
-                _ => 0
-            }
-        },
+        Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right),
+        Tree.VariableReferenceExpression(id) => visitVariableRef(id),
         _ => 0
+    }
+}
+and visitBinary = (left, op, right) => {
+    let evaluatedLeft = visit(left)
+    let evaluatedRight = visit(right)
+
+    match(op) {
+        "+" => evaluatedLeft + evaluatedRight,
+        "-" => evaluatedLeft - evaluatedRight,
+        "*" => evaluatedLeft * evaluatedRight,
+        "/" => evaluatedLeft / evaluatedRight,
+        _ => 0
+    }
+}
+and visitVariableRef = (id) => {
+    if(id == "pi") {
+        3.14
+    }
+    else {
+        0
     }
 }
 

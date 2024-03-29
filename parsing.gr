@@ -47,6 +47,7 @@ let consume = (state, kind) => {
     }
 }
 
+//consumes the token if token kind is the same
 let expects = (state, kind) => {
     if(state.nextToken.kind == kind) {
         nextToken(state)
@@ -58,6 +59,10 @@ let expects = (state, kind) => {
     }
 }
 
+let matches = (state, kind) => {
+    state.nextToken.kind == kind
+}
+
 let rec parseFactor = (state) => {
     if(expects(state, OpenParen)) {
         let inner = parseExpression(state)
@@ -65,8 +70,12 @@ let rec parseFactor = (state) => {
 
         return Tree.GroupExpression(inner)
     }
-    
-    return parseAtom(state)
+    else if(matches(state, Identifier)) {
+        return Tree.VariableReferenceExpression(consume(state, Identifier).text)
+    }
+    else {
+        return parseAtom(state)
+    }
 }
 
 and parseTerm = (state) => {

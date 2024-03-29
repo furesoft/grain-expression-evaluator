@@ -22,6 +22,7 @@ provide enum rec TokenType {
     OpenParen,
     CloseParen,
     Unknown,
+    Identifier,
     Empty
 }
 
@@ -105,6 +106,17 @@ provide let nextToken = state => {
     }
 
     return { text: Buffer.toString(buffer), kind: Number }
+  }
+
+  if(Char.isAsciiAlpha(char)) {
+    while(Char.isAsciiAlpha(char) || Char.isAsciiDigit(char)) {
+      Buffer.addChar(char, buffer)
+      
+      state.position += 1
+      char = nextChar(state)
+    }
+
+    return { text: Buffer.toString(buffer), kind: Identifier }
   }
 
   return tokenFromChar(char, Unknown)
