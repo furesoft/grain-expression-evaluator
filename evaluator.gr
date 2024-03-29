@@ -4,6 +4,10 @@ from "./parsing.gr" include Parser
 from "map" include Map
 from "./tree.gr" include Tree
 
+let variables = Map.make()
+
+Map.set("pi", 3.14, variables)
+
 let rec visit = (tree) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
@@ -26,11 +30,9 @@ and visitBinary = (left, op, right) => {
     }
 }
 and visitVariableRef = (id) => {
-    if(id == "pi") {
-        3.14
-    }
-    else {
-        0
+    match(Map.get(id, variables)) {
+        Some(value) => value,
+        None => 0
     }
 }
 
