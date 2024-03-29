@@ -10,10 +10,10 @@ from "result" include Result
     input: "1 + 2 * 3"
  }
 
-let mut token = Result.unwrap(Lexing.nextToken(state))
+let mut token = Lexing.nextToken(state)
 
   while(token.kind != EndOfInput) {
     print(token)
 
-    token = Result.unwrap(Lexing.nextToken(state))
+    token = Lexing.nextToken(state)
   }

@@ -19,17 +19,12 @@ provide enum rec TokenType {
     Slash,
     Number,
     EndOfInput,
-    Invalid
+    Unknown
 }
 
 provide record Token {
   text: String,
   kind: TokenType
-}
-
-provide enum LexingError {
-  UnexpectedEndOfInput,
-  UnkownChar(Char)
 }
 
 let isEndOfInput = state => state.position >= String.length(state.input)
@@ -51,7 +46,7 @@ let nextChar = (state) => {
 
 let buffer = Buffer.make(256)
 
-let tokenFromChar = (char, kind) => Ok({ text: Char.toString(char), kind: kind })
+let tokenFromChar = (char, kind) => { text: Char.toString(char), kind: kind }
 
 provide let nextToken = state => {
   Buffer.clear(buffer)
@@ -73,30 +68,8 @@ provide let nextToken = state => {
     return tokenFromChar(char, Asterisk)
   }
 
-  if(char == '1') {
-    state.position += 1
-    return tokenFromChar(char, Number)
-  }
-
-  if(char == '2') {
-    state.position += 1
-    return tokenFromChar(char, Number)
-  }
-
-  if(char == '3') {
-    state.position += 1
-    return tokenFromChar(char, Number)
-  }
-
   /**/
-  if(char == '+') {
-    state.position += 1
-    return tokenFromChar(char, Plus)
-  }
-  else if(char == '*') {
-    state.position += 1
-    return tokenFromChar(char, Asterisk)
-  }
+  
   else if(Char.isAsciiDigit(char)) {
     while(Char.isAsciiDigit(char)) {
       char = nextChar(state)
@@ -108,7 +81,7 @@ provide let nextToken = state => {
   }
   */
   
-  return Err(UnkownChar(char))
+  return tokenFromChar(char, Unknown)
 }
 
 
