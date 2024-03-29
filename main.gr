@@ -2,7 +2,8 @@ module Hello
 
 from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
-from "./parsing.gr" include Parser
+from "./evaluator.gr" include Evaluator
+
 from "list" include List
 from "buffer" include Buffer
 from "result" include Result
@@ -13,10 +14,7 @@ from "wasi/file" include File
 //let input = File.fdRead(File.stdin, 40000)
 //let input = Result.unwrap(input)
 
-let tree = Parser.parse("1+2*3-4")
+let tree = Evaluator.eval("1+2*3-4")
 
-let eval = t => {
-    5
-}
 
 print(tree)

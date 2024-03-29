@@ -1,0 +1,15 @@
+module Evaluator
+
+from "./parsing.gr" include Parser
+from "./tree.gr" include Tree
+from "map" include Map
+from "./tree.gr" include Tree
+
+
+
+provide let eval = (input) => {
+    let tree = Parser.parse("1+2*3-4")
+
+    
+}
+
