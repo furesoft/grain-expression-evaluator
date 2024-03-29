@@ -19,6 +19,8 @@ provide enum rec TokenType {
     Slash,
     Number,
     EndOfInput,
+    OpenParen,
+    CloseParen,
     Unknown,
     Empty
 }
@@ -74,14 +76,24 @@ provide let nextToken = state => {
     return tokenFromChar(char, Asterisk)
   }
 
-   if(char == '-') {
+  if(char == '-') {
     state.position += 1
     return tokenFromChar(char, Minus)
   }
 
-   if(char == '/') {
+  if(char == '/') {
     state.position += 1
     return tokenFromChar(char, Slash)
+  }
+
+  if(char == '(') {
+    state.position += 1
+    return tokenFromChar(char, OpenParen)
+  }
+
+  if(char == ')') {
+    state.position += 1
+    return tokenFromChar(char, CloseParen)
   }
 
   if(Char.isAsciiDigit(char)) {

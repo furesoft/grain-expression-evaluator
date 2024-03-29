@@ -4,5 +4,6 @@ provide enum rec Expression {
     UnaryExpression(String, Expression),
     BinaryExpression(Expression, String, Expression),
     NumberExpression(Number),
+    GroupExpression(Expression),
     Invalid
 }

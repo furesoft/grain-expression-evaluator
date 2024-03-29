@@ -1,7 +1,7 @@
 module Parser
 
+from "./tree.gr" include Tree
 from "./lexing.gr" include Lexing
-from "./expression.gr" include Tree
 from "number" include Number
 
 provide record ParsingState {
@@ -38,21 +38,44 @@ let parseAtom = state => {
     }
 }
 
+let consume = (state, kind) => {
+    if(state.nextToken.kind == kind) {
+       nextToken(state)
+    }
+    else {
+        Lexing.emptyToken
+    }
+}
+
+let expects = (state, kind) => {
+    if(state.nextToken.kind == kind) {
+        nextToken(state)
+
+        true
+    }
+    else {
+        false
+    }
+}
+
 let parseFactor = (state) => {
+    if(expects(state, OpenParen)) {
+        let inner = parseExpression(state)
+        consume(state)
+
+        Tree.GroupExpression(inner)
+    }
+    
     parseAtom(state)
 }
 
 let rec parseTerm = (state) => {
     let left = parseFactor(state);
 
-    if(state.nextToken.kind == Asterisk) {
-        nextToken(state)
-
+    if(expects(state, Asterisk)) {
         return Tree.BinaryExpression(left, "*", parseTerm(state))
     }
-    else if(state.nextToken.kind == Slash) {
-        nextToken(state)
-
+    else if(expects(state, Slash)) {
         return Tree.BinaryExpression(left, "/", parseTerm(state))
     }
 
@@ -62,14 +85,10 @@ let rec parseTerm = (state) => {
 let rec parseExpression = (state) => {
     let left = parseTerm(state);
 
-    if(state.nextToken.kind == Plus) {
-        nextToken(state)
-
+    if(expects(state, Plus)) {
         return Tree.BinaryExpression(left, "+", parseExpression(state))
     }
-    else if(state.nextToken.kind == Minus) {
-        nextToken(state)
-
+    else if(expects(state, Minus)) {
         return Tree.BinaryExpression(left, "-", parseExpression(state))
     }
 

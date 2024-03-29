@@ -1,7 +1,5 @@
 module Hello
 
-from "./expression.gr" include Tree
-from "./lexing.gr" include Lexing
 from "./evaluator.gr" include Evaluator
 
 from "list" include List
