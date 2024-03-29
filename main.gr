@@ -4,8 +4,19 @@ from "./expression.gr" include Tree
 from "./lexing.gr" include Lexing
 from "./parsing.gr" include Parser
 from "list" include List
+from "buffer" include Buffer
 from "result" include Result
+from "bytes" include Bytes
+from "wasi/file" include File
 
-let tree = Parser.parse("1 + 2 * 3 - 1")
+//print("Expression: ")
+//let input = File.fdRead(File.stdin, 40000)
+//let input = Result.unwrap(input)
+
+let tree = Parser.parse("1+2*3-4")
+
+let eval = t => {
+    5
+}
 
 print(tree)
