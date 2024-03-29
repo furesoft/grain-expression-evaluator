@@ -4,40 +4,61 @@ from "./parsing.gr" include Parser
 from "map" include Map
 from "./tree.gr" include Tree
 
-let variables = Map.make()
+provide record Scope {
+    variables: Map
+}
 
-Map.set("pi", 3.14, variables)
-
-let rec visit = (tree) => {
+let rec visit = (tree, scope) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
-        Tree.GroupExpression(inner) => visit(inner),
-        Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right),
-        Tree.VariableReferenceExpression(id) => visitVariableRef(id),
+        Tree.GroupExpression(inner) => visit(inner, scope),
+        Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right, scope),
+        Tree.VariableReferenceExpression(id) => visitVariableRef(id, scope),
         _ => 0
     }
 }
-and visitBinary = (left, op, right) => {
-    let evaluatedLeft = visit(left)
-    let evaluatedRight = visit(right)
+and visitBinary = (left, op, right, scope) => {
+    let evaluatedLeft = visit(left, scope)
+    let evaluatedRight = visit(right, scope)
 
     match(op) {
         "+" => evaluatedLeft + evaluatedRight,
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
+        ":=" => visitVariableBinding(left, right, scope),
         _ => 0
     }
 }
-and visitVariableRef = (id) => {
-    match(Map.get(id, variables)) {
+and visitVariableRef = (id, scope) => {
+    match(Map.get(id, scope.variables)) {
         Some(value) => value,
         None => 0
     }
 }
+and visitVariableBinding = (name, value, scope) => {
+    let visitedValue = visit(value)
+
+    match(name) {
+        Tree.VariableReferenceExpression(id) => {
+            Map.set(id, visitedValue, scope.variables)
+            
+            visitedValue
+        },
+        _ => 25
+    }
+}
 
 provide let eval = (input) => {
+    let variables = Map.make()
+
+    Map.set("pi", 3.14, variables)
+
+    let scope = {
+        variables
+    }
+
     let tree = Parser.parse(input)
 
-    visit(tree)
+    visit(tree, scope)
 }

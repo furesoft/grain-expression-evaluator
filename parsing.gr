@@ -90,7 +90,7 @@ and parseTerm = (state) => {
 
     return left;
 }
-and parseExpression = (state) => {
+and parseAdditive = (state) => {
     let left = parseTerm(state);
 
     if(expects(state, Plus)) {
@@ -98,6 +98,15 @@ and parseExpression = (state) => {
     }
     else if(expects(state, Minus)) {
         return Tree.BinaryExpression(left, "-", parseExpression(state))
+    }
+
+    return left;
+}
+and parseExpression = (state) => {
+    let left = parseAdditive(state);
+
+    if(expects(state, ColonEquals)) {
+        return Tree.BinaryExpression(left, ":=", parseExpression(state))
     }
 
     return left;
