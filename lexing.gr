@@ -4,6 +4,7 @@ from "buffer" include Buffer
 from "string" include String
 from "list" include List
 from "char" include Char
+from "result" include Result
 
 
 record LexingState {
@@ -35,8 +36,7 @@ let isEndOfInput = state => state.position >= String.length(state.input)
 
 let nextChar = (state) => {
   state.position += 1
-  print(state.position)
-
+  
   if (state.position >= String.length(state.input)) {
     Err(UnexpectedEndOfInput)
   } else {
@@ -46,21 +46,33 @@ let nextChar = (state) => {
 
 let buffer = Buffer.make(256)
 
+let skipWhitespace = state => {
+  let char = Result.unwrap(nextChar(state))
+
+  print(state)
+  while(char == ' ') {
+    state.position += 1
+  }
+
+}
+
 let nextToken = state => {
   Buffer.clear(buffer)
 
-  if(isEndOfInput(state)) {
-    return Ok({ text: "", kind: EndOfInput })
-  }
-
-  let char = match (nextChar(state)) {
+  let mut char = match (nextChar(state)) {
     Ok(c) => c,
-    Err(e) => return Err(e)
+    Err(e) => return Ok({ text: "", kind: EndOfInput })
   }
 
-  if(Char.isAsciiDigit(char)) {
+  if(char == '+') {
+    return Ok({ text: Char.toString(char), kind: Plus })
+  }
+  else if(char == '*') {
+    return Ok({ text: Char.toString(char), kind: Asterisk })
+  }
+  else if(Char.isAsciiDigit(char)) {
     while(Char.isAsciiDigit(char)) {
-      let char = match (nextChar(state)) {
+      char = match (nextChar(state)) {
         Ok(c) => c,
         Err(e) => return Err(e)
       }
@@ -81,15 +93,15 @@ provide let lex = input => {
     input: input
   }
 
-  let tokens = []
+  let mut tokens = []
 
   while(!isEndOfInput(state)) {
     match(nextToken(state)) {
-      Ok(token) => List.append(token, tokens),
+      Ok(token) => tokens = List.insert(0, token, tokens),
       Err(err) => print(err)
     }
   }
 
-  return tokens
+  return Ok(List.reverse(tokens))
 }
 
