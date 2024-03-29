@@ -1,5 +1,9 @@
 module Lexing
 
+from "set" include Set
+from "string" include String
+from "list" include List
+
 provide enum rec TokenType {
     Plus,
     Minus,
@@ -13,6 +17,16 @@ provide record Token {
   kind: TokenType
 }
 
-provide let nextToken = input => {
+let position = 0
+
+let nextToken = () => {
   return { text: "", kind: Invalid }
+}
+
+provide let lex = input => {
+  let tokens = Set.make()
+
+  while(position < String.length(input)) {
+    tokens.add(nextToken())
+  }
 }
