@@ -9,7 +9,7 @@ from "array" include Array
 use Map.*
 use Scope.*
 
-let rootScope = Scope.make()
+let rootScope = Scope.getRoot()
 
 Scope.setVariable("pi", 3.14, rootScope)
 
@@ -60,8 +60,14 @@ and visitVariableBinding = (name, value, scope) => {
 
             visitedValue
         },
-        Tree.FunctionCallExpression(name, args) => {
-            Scope.setFunction(name, (a) => {
+        Tree.FunctionCallExpression(name, parameter) => {
+            Scope.setFunction(name, (args) => {
+                if(Array.length(args) != Array.length(parameter)) {
+                    fail("argument mismatch for function " ++ name)
+                }
+
+                let funcScope = Scope.fromParent(scope)
+
                42
             }, scope)
             0
