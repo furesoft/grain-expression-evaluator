@@ -50,7 +50,9 @@ let consume = (state, kind) => {
     }
 }
 
-//consumes the token if token kind is the same
+/*
+* consumes the token if token kind is the same
+*/
 let expects = (state, kind) => {
     if(state.nextToken.kind == kind) {
         nextToken(state)

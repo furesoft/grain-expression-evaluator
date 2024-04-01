@@ -13,13 +13,13 @@ from "wasi/file" include File
 //let input = File.fdRead(File.stdin, 40000)
 //let input = Result.unwrap(input)
 
-let value = Evaluator.eval("power(4, 2)")
-print(value)
+//let value = Parser.parse("power(x) = x * x")
+//print(value)
 
-/**/
-Evaluator.eval("yeah = 42")
 
-let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
+let value = Evaluator.eval("yeah = 5")
 
-print(value)
-*/
+//let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
+
+print(Evaluator.eval("yeah"))
+

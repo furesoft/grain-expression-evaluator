@@ -3,24 +3,14 @@ module Evaluator
 from "./parsing.gr" include Parser
 from "./tree.gr" include Tree
 from "map" include Map
+from "./scope.gr" include Scope
 
 use Map.*
+use Scope.*
 
-provide record Scope {
-    variables: Map<String, Number>,
-    functions: Map<String, (Array<Tree.Expression>) => Number>
-}
+let scope = Scope.make()
 
-let variables = Map.make()
-
-Map.set("pi", 3.14, variables)
-
-let functions = Map.make()
-let scope = {
-    variables: variables,
-    functions: functions
-}
-
+Scope.setVariable("pi", 3.14, scope)
 
 let rec visit = (tree) => {
     match(tree) {
@@ -33,7 +23,7 @@ let rec visit = (tree) => {
     }
 }
 and visitFunctionCall = (name, args) => {
-    match(Map.get(name, scope.functions)) {
+    match(Scope.getFunction(name, scope)) {
         Some(callback) => callback(args),
         None => fail("function " ++ name ++ " not found")
     }
@@ -52,7 +42,7 @@ and visitBinary = (left, op, right) => {
     }
 }
 and visitVariableRef = (id) => {
-    match(Map.get(id, scope.variables)) {
+    match(Scope.getVariable(id, scope)) {
         Some(value) => value,
         None => 0
     }
@@ -62,11 +52,11 @@ and visitVariableBinding = (name, value) => {
 
     match(name) {
         Tree.VariableReferenceExpression(id) => {
-            Map.set(id, visitedValue, scope.variables)
-            
+            Scope.setVariable(id, visitedValue, scope)
+
             visitedValue
         },
-        _ => 25
+        _ => 0
     }
 }
 
@@ -76,9 +66,9 @@ provide let eval = (input) => {
     visit(tree)
 }
 
-Map.set("power", (args) => {
+Scope.setFunction("power", (args) => {
     let base = visit(args[0])
     let exponent = visit(args[1])
 
     base ** exponent
-}, functions)
+}, scope)

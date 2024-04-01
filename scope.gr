@@ -1,0 +1,61 @@
+module Scope
+
+from "map" include Map
+from "./tree.gr" include Tree
+from "option" include Option
+
+use Map.*
+
+provide record rec Scope {
+    variables: Map<String, Number>,
+    functions: Map<String, (Array<Tree.Expression>) => Number>,
+    parent: Option<Scope>
+}
+
+provide let fromParent = (parent) => {
+    Some({
+        variables: Map.make(),
+        functions: Map.make(),
+        parent: parent
+    })
+}
+
+provide let make = () => {
+    fromParent(None)
+}
+
+provide let setVariable = (name, value, scope) => {
+    match(scope) {
+        Some(scope) => Map.set(name, value, scope.variables),
+        None => fail("Scope is none")
+    }
+}
+
+provide let rec getVariable = (name, scope) => {
+    match(scope) {
+        None => None,
+        Some(scope) => {
+            let value = Map.get(name, scope.variables)
+
+            match(value) {
+                Some(v) => Some(v),
+                None => getVariable(name, scope.parent)
+            }
+        }
+    }
+}
+
+provide let rec getFunction = (name, scope) => {
+    let value = Map.get(name, Option.unwrap(scope).functions)
+
+    match(value) {
+        Some(v) => Some(v),
+        None => getFunction(name, Option.unwrap(scope).parent)
+    }
+}
+
+provide let setFunction = (name, call, scope) => {
+    if(Option.isSome(scope)) {
+        Map.set(name, call, Option.unwrap(scope).functions)
+    } 
+}
