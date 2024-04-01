@@ -2,6 +2,7 @@ module Hello
 
 from "./evaluator.gr" include Evaluator
 from "./parsing.gr" include Parser
+from "./scope.gr" include Scope
 
 from "list" include List
 from "buffer" include Buffer
@@ -16,8 +17,9 @@ from "wasi/file" include File
 //let value = Parser.parse("power(x) = x * x")
 //print(value)
 
+Scope.setVariable("n", 5, Evaluator.rootScope)
 
-let value = Evaluator.eval("yeah(x) = 5 + x")
+let value = Evaluator.eval("yeah(x) = n + x")
 
 //let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
 

@@ -9,9 +9,6 @@ from "array" include Array
 use Map.*
 use Scope.*
 
-let rootScope = Scope.getRoot()
-
-Scope.setVariable("pi", 3.14, rootScope)
 
 let rec visit = (tree, scope) => {
     match(tree) {
@@ -24,8 +21,7 @@ let rec visit = (tree, scope) => {
     }
 }
 and visitFunctionCall = (name, args, scope) => {
-    // ToDo: implement function call for custom defined functions
-    match(Scope.getFunction(name, rootScope)) {
+    match(Scope.getFunction(name, scope)) {
         Some(callback) => callback(args),
         None => fail("function " ++ name ++ " not found")
     }
@@ -67,8 +63,18 @@ and visitVariableBinding = (name, value, scope) => {
                 }
 
                 let funcScope = Scope.fromParent(scope)
+                let evaluatedArgs = Array.map(arg => visit(arg, funcScope), args)
+                
+                Array.forEachi((p, i) => {
+                    match(p){
+                        Tree.VariableReferenceExpression(pName) => {
+                            Scope.setVariable(pName, evaluatedArgs[i], funcScope)
+                        },
+                        _ => fail("error")
+                    }
+                }, parameter)
 
-               42
+                visit(value, funcScope)
             }, scope)
             0
         },
@@ -76,11 +82,9 @@ and visitVariableBinding = (name, value, scope) => {
     }
 }
 
-provide let eval = (input) => {
-    let tree = Parser.parse(input)
+provide let rootScope = Scope.make()
 
-    visit(tree, rootScope)
-}
+Scope.setVariable("pi", 3.14, rootScope)
 
 Scope.setFunction("power", (args) => {
     let scope = Scope.fromParent(rootScope)
@@ -89,3 +93,9 @@ Scope.setFunction("power", (args) => {
 
     base ** exponent
 }, rootScope)
+
+provide let eval = (input) => {
+    let tree = Parser.parse(input)
+
+    visit(tree, rootScope)
+}

@@ -24,9 +24,6 @@ provide let make = () => {
     fromParent(None)
 }
 
-let rootScope = make()
-provide let getRoot = () => rootScope
-
 provide let setVariable = (name, value, scope) => {
     match(scope) {
         Some(scope) => Map.set(name, value, scope.variables),
