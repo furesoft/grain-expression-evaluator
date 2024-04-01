@@ -46,11 +46,16 @@ provide let rec getVariable = (name, scope) => {
 }
 
 provide let rec getFunction = (name, scope) => {
-    let value = Map.get(name, Option.unwrap(scope).functions)
+    match(scope) {
+        None => None,
+        Some(scope) => {
+            let value = Map.get(name, scope.functions)
 
-    match(value) {
-        Some(v) => Some(v),
-        None => getFunction(name, Option.unwrap(scope).parent)
+            match(value) {
+                Some(v) => Some(v),
+                None => getFunction(name, scope.parent)
+            }
+        }
     }
 }
 

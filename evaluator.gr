@@ -4,13 +4,14 @@ from "./parsing.gr" include Parser
 from "./tree.gr" include Tree
 from "map" include Map
 from "./scope.gr" include Scope
+from "array" include Array
 
 use Map.*
 use Scope.*
 
-let scope = Scope.make()
+let rootScope = Scope.make()
 
-Scope.setVariable("pi", 3.14, scope)
+Scope.setVariable("pi", 3.14, rootScope)
 
 let rec visit = (tree) => {
     match(tree) {
@@ -23,38 +24,47 @@ let rec visit = (tree) => {
     }
 }
 and visitFunctionCall = (name, args) => {
-    match(Scope.getFunction(name, scope)) {
+    // ToDo: implement function call for custom defined functions
+    match(Scope.getFunction(name, rootScope)) {
         Some(callback) => callback(args),
         None => fail("function " ++ name ++ " not found")
     }
 }
 and visitBinary = (left, op, right) => {
+    if(op == "=") {
+        return visitVariableBinding(left, right)
+    }
+
     let evaluatedLeft = visit(left)
     let evaluatedRight = visit(right)
 
-    match(op) {
+    return match(op) {
         "+" => evaluatedLeft + evaluatedRight,
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
-        "=" => visitVariableBinding(left, right),
         _ => 0
     }
 }
 and visitVariableRef = (id) => {
-    match(Scope.getVariable(id, scope)) {
+    match(Scope.getVariable(id, rootScope)) {
         Some(value) => value,
-        None => 0
+        None => fail("Variable " ++ id ++ " not found")
     }
 }
 and visitVariableBinding = (name, value) => {
-    let visitedValue = visit(value)
-
     match(name) {
         Tree.VariableReferenceExpression(id) => {
-            Scope.setVariable(id, visitedValue, scope)
+            let visitedValue = visit(value)
+            Scope.setVariable(id, visitedValue, rootScope)
 
             visitedValue
+        },
+        Tree.FunctionCallExpression(name, args) => {
+            Scope.setFunction(name, (a) => {
+               42
+            }, rootScope)
+            0
         },
         _ => 0
     }
@@ -71,4 +81,4 @@ Scope.setFunction("power", (args) => {
     let exponent = visit(args[1])
 
     base ** exponent
-}, scope)
+}, rootScope)

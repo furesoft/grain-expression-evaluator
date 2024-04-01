@@ -17,9 +17,9 @@ from "wasi/file" include File
 //print(value)
 
 
-let value = Evaluator.eval("yeah = 5")
+let value = Evaluator.eval("yeah() = 5")
 
 //let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
 
-print(Evaluator.eval("yeah"))
+print(Evaluator.eval("yeah()"))
 
