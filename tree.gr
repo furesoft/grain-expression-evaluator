@@ -6,5 +6,6 @@ provide enum rec Expression {
     NumberExpression(Number),
     GroupExpression(Expression),
     VariableReferenceExpression(String),
+    FunctionCallExpression(String, Array<Expression>),
     Invalid
 }

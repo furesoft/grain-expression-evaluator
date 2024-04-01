@@ -4,17 +4,23 @@ from "./parsing.gr" include Parser
 from "./tree.gr" include Tree
 from "map" include Map
 
+use Map.*
+
 provide record Scope {
-    variables: Map.Map<String, Number>
+    variables: Map<String, Number>,
+    functions: Map<String, (Array<Tree.Expression>) => Number>
 }
 
 let variables = Map.make()
 
 Map.set("pi", 3.14, variables)
 
+let functions = Map.make()
 let scope = {
-    variables: variables
+    variables: variables,
+    functions: functions
 }
+
 
 let rec visit = (tree) => {
     match(tree) {
@@ -22,7 +28,14 @@ let rec visit = (tree) => {
         Tree.GroupExpression(inner) => visit(inner),
         Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right),
         Tree.VariableReferenceExpression(id) => visitVariableRef(id),
+        Tree.FunctionCallExpression(name, args) => visitFunctionCall(name, args),
         _ => 0
+    }
+}
+and visitFunctionCall = (name, args) => {
+    match(Map.get(name, scope.functions)) {
+        Some(callback) => callback(args),
+        None => fail("function " ++ name ++ " not found")
     }
 }
 and visitBinary = (left, op, right) => {
@@ -62,3 +75,10 @@ provide let eval = (input) => {
 
     visit(tree)
 }
+
+Map.set("power", (args) => {
+    let base = visit(args[0])
+    let exponent = visit(args[1])
+
+    base ** exponent
+}, functions)

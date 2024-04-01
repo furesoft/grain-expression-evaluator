@@ -3,6 +3,8 @@ module Parser
 from "./tree.gr" include Tree
 from "./lexing.gr" include Lexing
 from "number" include Number
+from "array" include Array
+from "list" include List
 
 provide record ParsingState {
     mut currentToken: Lexing.Token,
@@ -27,6 +29,7 @@ let nextToken = (state) => {
 
     return state.currentToken
 }
+
 
 
 let parseAtom = state => {
@@ -71,11 +74,43 @@ let rec parseFactor = (state) => {
         return Tree.GroupExpression(inner)
     }
     else if(matches(state, Identifier)) {
-        return Tree.VariableReferenceExpression(consume(state, Identifier).text)
+        let identifier = consume(state, Identifier).text;
+
+        if(matches(state, OpenParen)) {
+            return parseFunctionCall(state)
+        }
+
+        return Tree.VariableReferenceExpression(identifier)
     }
     else {
         return parseAtom(state)
     }
+}
+
+and parseFunctionCall = (state) => {
+    let name = state.currentToken.text;
+    let mut args = [>]
+
+    if(expects(state, OpenParen)) {
+        args = Array.fromList(parseArgumentList(state))
+    }
+
+    return Tree.FunctionCallExpression(name, args)
+} and parseArgumentList = (state) => {
+    let mut args = []
+
+    while(state.nextToken.kind != CloseParen) {
+        
+        args = [parseExpression(state), ...args]
+
+        if(state.nextToken.kind != CloseParen) {
+            expects(state, Comma)
+            continue
+        }
+    }
+    expects(state, CloseParen)
+
+    List.reverse(args)
 }
 
 and parseTerm = (state) => {
