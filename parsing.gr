@@ -31,16 +31,6 @@ let nextToken = (state) => {
 }
 
 
-
-let parseAtom = state => {
-    let mut token = nextToken(state)
-
-    match(Number.parse(token.text)) {
-        Ok(number) => Tree.NumberExpression(number),
-        Err(err) => Tree.Invalid()
-    }
-}
-
 let consume = (state, kind) => {
     if(state.nextToken.kind == kind) {
        nextToken(state)
@@ -66,6 +56,16 @@ let expects = (state, kind) => {
 
 let matches = (state, kind) => {
     state.nextToken.kind == kind
+}
+
+
+let parseAtom = state => {
+    let mut token = nextToken(state)
+
+    match(Number.parse(token.text)) {
+        Ok(number) => Tree.NumberExpression(number),
+        Err(err) => Tree.Invalid()
+    }
 }
 
 let rec parseFactor = (state) => {
