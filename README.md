@@ -6,7 +6,8 @@ An engine to evaluate mathematical expressions written in Grain
 
 ```grain
 Scope.setVariable("n", 5, Evaluator.rootScope)
-Evaluator.eval("power(2,6) + pi - n")
+let result = Evaluator.eval("power(2,6) + pi - n")
+print(result)
 ``` 
 
 ## Defining functions
