@@ -136,6 +136,15 @@ and parseAdditive = (state) => {
     else if(expects(state, Minus)) {
         return Tree.BinaryExpression(left, "-", parseExpression(state))
     }
+    else if(expects(state, Less)) {
+        return Tree.BinaryExpression(left, "<", parseExpression(state))
+    }
+    else if(expects(state, Greater)) {
+        return Tree.BinaryExpression(left, ">", parseExpression(state))
+    }
+     else if(expects(state, EqualsEquals)) {
+        return Tree.BinaryExpression(left, "==", parseExpression(state))
+    }
 
     return left;
 }

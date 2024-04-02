@@ -9,14 +9,16 @@ use Map.*
 provide record rec Scope {
     variables: Map<String, Number>,
     functions: Map<String, (Array<Tree.Expression>) => Number>,
-    parent: Option<Scope>
+    parent: Option<Scope>,
+    sets: Map<String, (Number) => Bool>
 }
 
 provide let fromParent = (parent) => {
     Some({
         variables: Map.make(),
         functions: Map.make(),
-        parent: parent
+        parent: parent,
+        sets: Map.make()
     })
 }
 
@@ -63,4 +65,8 @@ provide let setFunction = (name, call, scope) => {
     if(Option.isSome(scope)) {
         Map.set(name, call, Option.unwrap(scope).functions)
     } 
+}
+
+provide let defineSet = (name, def, scope) => {
+    Map.set(name, def, Option.unwrap(scope).sets)
 }

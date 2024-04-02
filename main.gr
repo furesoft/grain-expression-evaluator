@@ -21,7 +21,7 @@ Scope.setVariable("n", 5, Evaluator.rootScope)
 
 let value = Evaluator.eval("yeah(x) = n + x")
 
-//let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
+Evaluator.eval("set even = x % 2 == 0");
 
-print(Evaluator.eval("yeah(5)"))
+//let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
 

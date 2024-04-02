@@ -1,5 +1,5 @@
 @ECHO OFF
 :loop
   %*
-  timeout /t 2 > NUL
+  timeout /t 1 > NUL
 goto loop

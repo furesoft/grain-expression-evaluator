@@ -5,10 +5,15 @@ from "./tree.gr" include Tree
 from "map" include Map
 from "./scope.gr" include Scope
 from "array" include Array
+from "number" include Number
 
 use Map.*
 use Scope.*
 
+let evaluateBool = (cond) => match(cond) {
+    true => 1,
+    false => 0
+}
 
 let rec visit = (tree, scope) => {
     match(tree) {
@@ -39,6 +44,9 @@ and visitBinary = (left, op, right, scope) => {
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
+        "<" => evaluateBool(evaluatedLeft < evaluatedRight),
+        ">" => evaluateBool(evaluatedLeft > evaluatedRight),
+        "==" => evaluateBool(evaluatedLeft == evaluatedRight),
         _ => 0
     }
 }
@@ -86,11 +94,15 @@ provide let rootScope = Scope.make()
 
 Scope.setVariable("pi", 3.14, rootScope)
 
+Scope.defineSet("N", value => Number.isInteger(value) && value >= 0, rootScope)
+Scope.defineSet("Z", value => Number.isInteger(value), rootScope)
+Scope.defineSet("Q", value => Number.isFloat(value), rootScope)
+
 Scope.setFunction("power", (args) => {
     let scope = Scope.fromParent(rootScope)
     let base = visit(args[0], scope)
     let exponent = visit(args[1], scope)
-
+    
     base ** exponent
 }, rootScope)
 

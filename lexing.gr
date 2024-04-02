@@ -5,12 +5,14 @@ from "string" include String
 from "list" include List
 from "char" include Char
 from "result" include Result
+from "map" include Map
 
 
 provide record LexingState {
   mut position: Number,
   input: String
 }
+use Map.*
 
 provide enum rec TokenType {
     Plus,
@@ -25,7 +27,21 @@ provide enum rec TokenType {
     Identifier,
     Comma,
     Equals,
+    EqualsEquals,
+    Less,
+    Greater,
+    Set,
     Empty
+}
+
+let keywords = Map.make()
+Map.set("set", Set, keywords)
+
+let getTokenKind = (text) => {
+  match(Map.get(text, keywords)) {
+    Some(kind) => kind,
+    None => Identifier
+  }
 }
 
 provide record Token {
@@ -102,12 +118,29 @@ provide let nextToken = state => {
 
   if(char == '=') {
     state.position += 1
+
+    if(nextChar(state) == '=') {
+      state.position += 1
+
+      return tokenFromString("==", EqualsEquals)
+    }
+
     return tokenFromChar(char, Equals)
   }
 
   if(char == ',') {
     state.position += 1
     return tokenFromChar(char, Comma)
+  }
+
+  if(char == '<') {
+    state.position += 1
+    return tokenFromChar(char, Less)
+  }
+
+  if(char == '>') {
+    state.position += 1
+    return tokenFromChar(char, Greater)
   }
 
   if(Char.isAsciiDigit(char)) {
@@ -129,7 +162,11 @@ provide let nextToken = state => {
       char = nextChar(state)
     }
 
-    return { text: Buffer.toString(buffer), kind: Identifier }
+    let tokenText = Buffer.toString(buffer)
+    let tokenKind = getTokenKind(tokenText)
+    print(tokenText ++ ": " ++ toString(tokenKind))
+    
+    return { text: tokenText, kind: tokenKind }
   }
 
   return tokenFromChar(char, Unknown)
