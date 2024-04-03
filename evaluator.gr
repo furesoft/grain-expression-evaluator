@@ -10,9 +10,18 @@ from "number" include Number
 use Map.*
 use Scope.*
 
+provide let rootScope = Scope.make()
+
 let evaluateBool = (cond) => match(cond) {
     true => 1,
     false => 0
+}
+
+let isNumberInSet = (set, value) => {
+    match(Scope.getSet(set, rootScope)) {
+        Some(s) => s(value),
+        None => false
+    }
 }
 
 let rec visit = (tree, scope) => {
@@ -44,6 +53,7 @@ and visitBinary = (left, op, right, scope) => {
         "-" => evaluatedLeft - evaluatedRight,
         "*" => evaluatedLeft * evaluatedRight,
         "/" => evaluatedLeft / evaluatedRight,
+        "%" => evaluatedLeft % evaluatedRight,
         "<" => evaluateBool(evaluatedLeft < evaluatedRight),
         ">" => evaluateBool(evaluatedLeft > evaluatedRight),
         "==" => evaluateBool(evaluatedLeft == evaluatedRight),
@@ -89,8 +99,6 @@ and visitVariableBinding = (name, value, scope) => {
         _ => 0
     }
 }
-
-provide let rootScope = Scope.make()
 
 Scope.setVariable("pi", 3.14, rootScope)
 

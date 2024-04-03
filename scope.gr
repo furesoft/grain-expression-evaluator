@@ -70,3 +70,7 @@ provide let setFunction = (name, call, scope) => {
 provide let defineSet = (name, def, scope) => {
     Map.set(name, def, Option.unwrap(scope).sets)
 }
+
+provide let getSet = (name, scope) => {
+    Map.get(name, Option.unwrap(scope).sets)
+}

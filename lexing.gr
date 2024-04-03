@@ -30,12 +30,15 @@ provide enum rec TokenType {
     EqualsEquals,
     Less,
     Greater,
+    Percentage,
     Set,
+    In,
     Empty
 }
 
 let keywords = Map.make()
 Map.set("set", Set, keywords)
+Map.set("in", In, keywords)
 
 let getTokenKind = (text) => {
   match(Map.get(text, keywords)) {
@@ -57,19 +60,12 @@ provide let emptyToken = {
 let isEndOfInput = state => state.position >= String.length(state.input)
 
 let nextChar = (state) => {
-  while (state.position < String.length(state.input)) {
-    let c = String.charAt(state.position, state.input)
-
-    if(c == ' ') {
-      state.position += 1
-      
-      continue;
-    }
-
-    return c
+  if(state.position >= String.length(state.input)) {
+    '\0'
   }
-
-  return '\0'
+  else {
+    String.charAt(state.position, state.input)
+  }
 }
 
 let buffer = Buffer.make(256)
@@ -79,6 +75,18 @@ let tokenFromString = (str, kind) => { text: str, kind: kind }
 
 provide let nextToken = state => {
   Buffer.clear(buffer)
+
+  while (state.position < String.length(state.input)) {
+    let c = String.charAt(state.position, state.input)
+
+    if(c == ' ') {
+      state.position += 1
+      continue
+    }
+    else {
+      break
+    }
+  }
 
   let mut char = nextChar(state)
 
@@ -104,6 +112,11 @@ provide let nextToken = state => {
   if(char == '/') {
     state.position += 1
     return tokenFromChar(char, Slash)
+  }
+
+  if(char == '%') {
+    state.position += 1
+    return tokenFromChar(char, Percentage)
   }
 
   if(char == '(') {
@@ -164,8 +177,7 @@ provide let nextToken = state => {
 
     let tokenText = Buffer.toString(buffer)
     let tokenKind = getTokenKind(tokenText)
-    print(tokenText ++ ": " ++ toString(tokenKind))
-    
+
     return { text: tokenText, kind: tokenKind }
   }
 
