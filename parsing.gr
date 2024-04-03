@@ -83,11 +83,15 @@ and parseAtom = state => {
     let mut token = nextToken(state)
 
     if(token.kind == Minus) {
-        consume(state, Minus)
-
         let expr = parseExpression(state)
 
         return Tree.PreUnaryExpression("-", expr)
+    }
+    else if(token.kind == Pipe) {
+        let inner = parseExpression(state)
+        consume(state, Pipe)
+
+        return Tree.AbsExpr(inner)
     }
     else if(token.kind == Number) {
         return match(Number.parse(token.text)) {

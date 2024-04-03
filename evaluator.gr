@@ -32,8 +32,14 @@ let rec visit = (tree, scope) => {
         Tree.VariableReferenceExpression(id) => visitVariableRef(id, scope),
         Tree.FunctionCallExpression(name, args) => visitFunctionCall(name, args, scope),
         Tree.PreUnaryExpression(op, expr) => visitPreUnary(op, expr, scope),
+        Tree.AbsExpr(inner) => visitAbs(inner, scope),
         _ => 0
     }
+}
+and visitAbs = (inner, scope) => {
+    let visitedInner = visit(inner, scope)
+
+    Number.abs(visitedInner)
 }
 and visitPreUnary = (op, expr, scope) => {
     match(op) {

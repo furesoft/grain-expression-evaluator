@@ -8,5 +8,6 @@ provide enum rec Expression {
     VariableReferenceExpression(String),
     FunctionCallExpression(String, Array<Expression>),
     PreUnaryExpression(String, Expression),
+    AbsExpr(Expression),
     Invalid
 }
