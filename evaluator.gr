@@ -31,6 +31,13 @@ let rec visit = (tree, scope) => {
         Tree.BinaryExpression(left, op, right) => visitBinary(left, op, right, scope),
         Tree.VariableReferenceExpression(id) => visitVariableRef(id, scope),
         Tree.FunctionCallExpression(name, args) => visitFunctionCall(name, args, scope),
+        Tree.PreUnaryExpression(op, expr) => visitPreUnary(op, expr, scope),
+        _ => 0
+    }
+}
+and visitPreUnary = (op, expr, scope) => {
+    match(op) {
+        "-" => visit(expr, scope) * -1,
         _ => 0
     }
 }

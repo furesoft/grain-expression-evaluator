@@ -59,15 +59,6 @@ let matches = (state, kind) => {
 }
 
 
-let parseAtom = state => {
-    let mut token = nextToken(state)
-
-    match(Number.parse(token.text)) {
-        Ok(number) => Tree.NumberExpression(number),
-        Err(err) => Tree.Invalid()
-    }
-}
-
 let rec parseFactor = (state) => {
     if(expects(state, OpenParen)) {
         let inner = parseExpression(state)
@@ -88,7 +79,26 @@ let rec parseFactor = (state) => {
         return parseAtom(state)
     }
 }
+and parseAtom = state => {
+    let mut token = nextToken(state)
 
+    if(token.kind == Minus) {
+        consume(state, Minus)
+
+        let expr = parseExpression(state)
+
+        return Tree.PreUnaryExpression("-", expr)
+    }
+    else if(token.kind == Number) {
+        return match(Number.parse(token.text)) {
+            Ok(number) => Tree.NumberExpression(number),
+            Err(err) => Tree.Invalid()
+        }
+    }
+    else {
+        return Tree.Invalid()
+    }
+}
 and parseFunctionCall = (state) => {
     let name = state.currentToken.text;
     let mut args = [>]
@@ -142,7 +152,7 @@ and parseAdditive = (state) => {
     else if(expects(state, Greater)) {
         return Tree.BinaryExpression(left, ">", parseExpression(state))
     }
-     else if(expects(state, EqualsEquals)) {
+    else if(expects(state, EqualsEquals)) {
         return Tree.BinaryExpression(left, "==", parseExpression(state))
     }
 
