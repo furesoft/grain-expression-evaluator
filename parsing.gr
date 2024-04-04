@@ -64,19 +64,19 @@ let rec parseFactor = (state) => {
         let inner = parseExpression(state)
         consume(state, CloseParen)
 
-        return Tree.GroupExpression(inner)
+        Tree.GroupExpression(inner)
     }
     else if(matches(state, Identifier)) {
         let identifier = consume(state, Identifier).text;
 
         if(matches(state, OpenParen)) {
-            return parseFunctionCall(state)
+            parseFunctionCall(state)
+        } else {
+            Tree.VariableReferenceExpression(identifier)
         }
-
-        return Tree.VariableReferenceExpression(identifier)
     }
     else {
-        return parseAtom(state)
+        parseAtom(state)
     }
 }
 and parseAtom = state => {
@@ -116,7 +116,6 @@ and parseFunctionCall = (state) => {
     let mut args = []
 
     while(state.nextToken.kind != CloseParen) {
-        
         args = [parseExpression(state), ...args]
 
         if(state.nextToken.kind != CloseParen) {
