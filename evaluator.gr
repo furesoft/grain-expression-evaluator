@@ -6,6 +6,7 @@ from "map" include Map
 from "./scope.gr" include Scope
 from "array" include Array
 from "number" include Number
+from "option" include Option
 
 use Map.*
 use Scope.*
@@ -33,6 +34,7 @@ let rec visit = (tree, scope) => {
         Tree.FunctionCallExpression(name, args) => visitFunctionCall(name, args, scope),
         Tree.PreUnaryExpression(op, expr) => visitPreUnary(op, expr, scope),
         Tree.AbsExpr(inner) => visitAbs(inner, scope),
+        Tree.SetDefinition(name, parent, check) => visitSetDefinition(name, parent, check, scope),
         _ => 0
     }
 }
@@ -75,6 +77,25 @@ and visitBinary = (left, op, right, scope) => {
 
         _ => 0
     }
+}
+and visitSetDefinition = (name, parent, check, scope) => {
+    Scope.defineSet(name, value => {
+        let parentSetCheck = Option.unwrap(Scope.getSet(parent, scope))
+        let parentEvaluated = parentSetCheck(value)
+        
+        let subscope = Scope.fromParent(scope)
+        Scope.setVariable("x", value, scope)
+
+        let result = match(visit(check, subscope)) {
+            1 => true,
+            0 => false,
+            _ => false
+        }
+
+        result && parentEvaluated
+    }, scope)
+
+    0
 }
 and visitVariableRef = (id, scope) => {
     match(Scope.getVariable(id, scope)) {
@@ -133,6 +154,5 @@ Scope.setFunction("power", (args) => {
 provide let eval = (input) => {
     let tree = Parser.parse(input)
 
-    print(tree)
     visit(tree, rootScope)
 }

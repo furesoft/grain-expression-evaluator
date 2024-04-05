@@ -128,7 +128,18 @@ and parseFunctionCall = (state) => {
 
     List.reverse(args)
 }
+and parseSetDefinition = (state) => {
+    let name = consume(state, Identifier).text
 
+    consume(state, In)
+
+    let parentSet = consume(state, Identifier).text
+    
+    consume(state, Equals)
+    let check = parseExpression(state)
+
+    return Tree.SetDefinition(name, parentSet, check)
+}
 and parseTerm = (state) => {
     let left = parseFactor(state);
 
@@ -137,6 +148,9 @@ and parseTerm = (state) => {
     }
     else if(expects(state, Slash)) {
         return Tree.BinaryExpression(left, Tree.Divide, parseTerm(state))
+    }
+    else if(expects(state, Percentage)) {
+        return Tree.BinaryExpression(left, Tree.Modulo, parseTerm(state))
     }
 
     return left;
@@ -160,21 +174,23 @@ and parseAdditive = (state) => {
     return left;
 }
 and parseBinaryBoolean = (state) => {
-    let left = parseTerm(state)
+    let left = parseTerm(state);
 
-    if(expects(state, EqualsEquals)) {
-        return Tree.BinaryExpression(left, Tree.Equals, parseExpression(state))
+    if (expects(state, EqualsEquals)) {
+        return Tree.BinaryExpression(left, Tree.Equals, parseExpression(state));
+    } else if (expects(state, AmpersandAmpersand)) {
+        return Tree.BinaryExpression(left, Tree.And, parseExpression(state));
+    } else if (expects(state, PipePipe)) {
+        return Tree.BinaryExpression(left, Tree.Or, parseExpression(state));
+    } else {
+        return left;
     }
-    else if(expects(state, AmpersandAmpersand)) {
-        return Tree.BinaryExpression(left, Tree.And, parseExpression(state))
-    }
-    else if(expects(state, PipePipe)) {
-        return Tree.BinaryExpression(left, Tree.Or, parseExpression(state))
-    }
-
-    return left
 }
 and parseExpression = (state) => {
+    if(expects(state, Set)) {
+        return parseSetDefinition(state)
+    }
+
     let left = parseAdditive(state);
 
     if(expects(state, Equals)) {
