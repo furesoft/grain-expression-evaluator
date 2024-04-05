@@ -1,8 +1,31 @@
 module Tree
 
+provide enum UnaryOperator {
+    Negate,
+}
+
+provide enum BinaryOperator {
+    Add,
+    Sub,
+
+    Multiply,
+    Divide,
+    Modulo,
+
+    LessThan,
+    GreaterThan,
+    Equals,
+
+    Assignment,
+
+    And,
+    Or,
+}
+
+
 provide enum rec Expression {
-    UnaryExpression(String, Expression),
-    BinaryExpression(Expression, String, Expression),
+    UnaryExpression(UnaryOperator, Expression),
+    BinaryExpression(Expression, BinaryOperator, Expression),
     NumberExpression(Number),
     GroupExpression(Expression),
     VariableReferenceExpression(String),

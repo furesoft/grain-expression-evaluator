@@ -133,52 +133,52 @@ and parseTerm = (state) => {
     let left = parseFactor(state);
 
     if(expects(state, Asterisk)) {
-        return Tree.BinaryExpression(left, "*", parseTerm(state))
+        return Tree.BinaryExpression(left, Tree.Multiply, parseTerm(state))
     }
     else if(expects(state, Slash)) {
-        return Tree.BinaryExpression(left, "/", parseTerm(state))
+        return Tree.BinaryExpression(left, Tree.Divide, parseTerm(state))
     }
 
     return left;
 }
 and parseAdditive = (state) => {
-    let left = parseTerm(state);
+    let left = parseBinaryBoolean(state);
 
     if(expects(state, Plus)) {
-        return Tree.BinaryExpression(left, "+", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.Add, parseExpression(state))
     }
     else if(expects(state, Minus)) {
-        return Tree.BinaryExpression(left, "-", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.Sub, parseExpression(state))
     }
     else if(expects(state, Less)) {
-        return Tree.BinaryExpression(left, "<", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.LessThan, parseExpression(state))
     }
     else if(expects(state, Greater)) {
-        return Tree.BinaryExpression(left, ">", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.GreaterThan, parseExpression(state))
     }
 
     return left;
 }
 and parseBinaryBoolean = (state) => {
-    let left = parseAdditive(state)
+    let left = parseTerm(state)
 
     if(expects(state, EqualsEquals)) {
-        return Tree.BinaryExpression(left, "==", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.Equals, parseExpression(state))
     }
     else if(expects(state, AmpersandAmpersand)) {
-        return Tree.BinaryExpression(left, "&&", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.And, parseExpression(state))
     }
     else if(expects(state, PipePipe)) {
-        return Tree.BinaryExpression(left, "||", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.Or, parseExpression(state))
     }
 
     return left
 }
 and parseExpression = (state) => {
-    let left = parseBinaryBoolean(state);
+    let left = parseAdditive(state);
 
     if(expects(state, Equals)) {
-        return Tree.BinaryExpression(left, "=", parseExpression(state))
+        return Tree.BinaryExpression(left, Tree.Assignment, parseExpression(state))
     }
 
     return left;

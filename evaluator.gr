@@ -54,7 +54,7 @@ and visitFunctionCall = (name, args, scope) => {
     }
 }
 and visitBinary = (left, op, right, scope) => {
-    if(op == "=") {
+    if(op == Tree.Assignment) {
         return visitVariableBinding(left, right, scope)
     }
 
@@ -62,16 +62,16 @@ and visitBinary = (left, op, right, scope) => {
     let evaluatedRight = visit(right, scope)
 
     return match(op) {
-        "+" => evaluatedLeft + evaluatedRight,
-        "-" => evaluatedLeft - evaluatedRight,
-        "*" => evaluatedLeft * evaluatedRight,
-        "/" => evaluatedLeft / evaluatedRight,
-        "%" => evaluatedLeft % evaluatedRight,
-        "<" => evaluateBool(evaluatedLeft < evaluatedRight),
-        ">" => evaluateBool(evaluatedLeft > evaluatedRight),
-        "==" => evaluateBool(evaluatedLeft == evaluatedRight),
-        "&&" => evaluateBool(evaluatedLeft == 1 && evaluatedRight == 1),
-        "||" => evaluateBool(evaluatedLeft == 1 || evaluatedRight == 1),
+        Tree.Add => evaluatedLeft + evaluatedRight,
+        Tree.Sub => evaluatedLeft - evaluatedRight,
+        Tree.Multiply => evaluatedLeft * evaluatedRight,
+        Tree.Divide => evaluatedLeft / evaluatedRight,
+        Tree.Modulo => evaluatedLeft % evaluatedRight,
+        Tree.LessThan => evaluateBool(evaluatedLeft < evaluatedRight),
+        Tree.GreaterThan => evaluateBool(evaluatedLeft > evaluatedRight),
+        Tree.Equals => evaluateBool(evaluatedLeft == evaluatedRight),
+        Tree.And => evaluateBool(evaluatedLeft == 1 && evaluatedRight == 1),
+        Tree.Or => evaluateBool(evaluatedLeft == 1 || evaluatedRight == 1),
 
         _ => 0
     }
