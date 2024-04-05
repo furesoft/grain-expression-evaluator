@@ -156,7 +156,13 @@ and parseAdditive = (state) => {
     else if(expects(state, Greater)) {
         return Tree.BinaryExpression(left, ">", parseExpression(state))
     }
-    else if(expects(state, EqualsEquals)) {
+
+    return left;
+}
+and parseBinaryBoolean = (state) => {
+    let left = parseAdditive(state)
+
+    if(expects(state, EqualsEquals)) {
         return Tree.BinaryExpression(left, "==", parseExpression(state))
     }
     else if(expects(state, AmpersandAmpersand)) {
@@ -166,10 +172,10 @@ and parseAdditive = (state) => {
         return Tree.BinaryExpression(left, "||", parseExpression(state))
     }
 
-    return left;
+    return left
 }
 and parseExpression = (state) => {
-    let left = parseAdditive(state);
+    let left = parseBinaryBoolean(state);
 
     if(expects(state, Equals)) {
         return Tree.BinaryExpression(left, "=", parseExpression(state))
