@@ -16,7 +16,7 @@ from "wasi/file" include File
 
 Scope.setVariable("n", 5, Evaluator.rootScope)
 
-Evaluator.eval("yeah(x) = n + x")
+//Evaluator.eval("yeah(x) = n + x")
 print(Evaluator.eval("|-5|"))
 
 //Evaluator.eval("set even in N = x % 2 == 0");
