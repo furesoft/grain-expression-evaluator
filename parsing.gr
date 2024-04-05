@@ -83,6 +83,7 @@ and parseAtom = state => {
     let mut token = nextToken(state)
 
     if(token.kind == Minus) {
+        consume(state, Minus)
         let expr = parseExpression(state)
 
         return Tree.PreUnaryExpression("-", expr)
@@ -158,11 +159,11 @@ and parseAdditive = (state) => {
     else if(expects(state, EqualsEquals)) {
         return Tree.BinaryExpression(left, "==", parseExpression(state))
     }
-    else if(expects(state, Ampersand)) {
-        return Tree.BinaryExpression(left, "&", parseExpression(state))
+    else if(expects(state, AmpersandAmpersand)) {
+        return Tree.BinaryExpression(left, "&&", parseExpression(state))
     }
-    else if(expects(state, Pipe)) {
-        return Tree.BinaryExpression(left, "|", parseExpression(state))
+    else if(expects(state, PipePipe)) {
+        return Tree.BinaryExpression(left, "||", parseExpression(state))
     }
 
     return left;

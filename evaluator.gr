@@ -70,8 +70,8 @@ and visitBinary = (left, op, right, scope) => {
         "<" => evaluateBool(evaluatedLeft < evaluatedRight),
         ">" => evaluateBool(evaluatedLeft > evaluatedRight),
         "==" => evaluateBool(evaluatedLeft == evaluatedRight),
-        "&" => evaluateBool(evaluatedLeft == 1 && evaluatedRight == 1),
-        "|" => evaluateBool(evaluatedLeft == 1 || evaluatedRight == 1),
+        "&&" => evaluateBool(evaluatedLeft == 1 && evaluatedRight == 1),
+        "||" => evaluateBool(evaluatedLeft == 1 || evaluatedRight == 1),
 
         _ => 0
     }
@@ -133,5 +133,6 @@ Scope.setFunction("power", (args) => {
 provide let eval = (input) => {
     let tree = Parser.parse(input)
 
+    print(tree)
     visit(tree, rootScope)
 }

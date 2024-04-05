@@ -31,8 +31,9 @@ provide enum rec TokenType {
     Less,
     Greater,
     Percentage,
-    Ampersand,
+    AmpersandAmpersand,
     Pipe,
+    PipePipe,
     Set,
     In,
     Empty
@@ -133,12 +134,20 @@ provide let nextToken = state => {
 
   if(char == '&') {
     state.position += 1
-    return tokenFromChar(char, Ampersand)
+
+    if(nextChar(state) == '&') {
+      state.position += 1
+      return tokenFromChar(char, AmpersandAmpersand)
+    }
   }
 
   if(char == '|') {
     state.position += 1
-    return tokenFromChar(char, Pipe)
+
+    if(nextChar(state) == '|') {
+      state.position += 1
+      return tokenFromChar(char, PipePipe)
+    }
   }
 
   if(char == '=') {
