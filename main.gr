@@ -17,11 +17,9 @@ from "wasi/file" include File
 Scope.setVariable("n", 5, Evaluator.rootScope)
 
 //Evaluator.eval("yeah(x) = n + x")
-Evaluator.eval("set even in N = x % 2 == 0");
-//f: x in even
-//f(x) = x + 1
+//Evaluator.eval("set even in N = x % 2 == 0")
+Evaluator.eval("f: x in even f(x) = x + 1")
 //print(Evaluator.eval("5 > 3 && 1"))
 
 
 //let value = Evaluator.eval("yeah+pi+(1+2)*3-4")
-

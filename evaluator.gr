@@ -13,6 +13,13 @@ use Scope.*
 
 provide let rootScope = Scope.make()
 
+enum UserFunc {
+  Arity1(Number => Number),
+  Arity2((Number, Number) => Number),
+  Arity3((Number, Number, Number) => Number),
+  ArityN(Array<Number> => Number)
+}
+
 let evaluateBool = (cond) => match(cond) {
     true => 1,
     false => 0
@@ -80,7 +87,10 @@ and visitBinary = (left, op, right, scope) => {
 }
 and visitSetDefinition = (name, parent, check, scope) => {
     Scope.defineSet(name, value => {
-        let parentSetCheck = Option.unwrap(Scope.getSet(parent, scope))
+        let parentSetCheck = match(Scope.getSet(parent, scope)) {
+            Some(parentSet) => parentSet,
+            None => fail("Set " ++ parent ++ " not found")
+        }
         let parentEvaluated = parentSetCheck(value)
         
         let subscope = Scope.fromParent(scope)
@@ -154,5 +164,7 @@ Scope.setFunction("power", (args) => {
 provide let eval = (input) => {
     let tree = Parser.parse(input)
 
+    print("input: " ++ input)
+    print(tree)
     visit(tree, rootScope)
 }

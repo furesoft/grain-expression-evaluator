@@ -64,7 +64,7 @@ provide let rec getFunction = (name, scope) => {
 provide let setFunction = (name, call, scope) => {
     if(Option.isSome(scope)) {
         Map.set(name, call, Option.unwrap(scope).functions)
-    } 
+    }
 }
 
 provide let defineSet = (name, def, scope) => {

@@ -22,6 +22,11 @@ provide enum BinaryOperator {
     Or,
 }
 
+provide record ParameterRestriction {
+    parameterName: String,
+    set: String
+}
+
 
 provide enum rec Expression {
     UnaryExpression(UnaryOperator, Expression),
@@ -33,5 +38,7 @@ provide enum rec Expression {
     PreUnaryExpression(String, Expression),
     AbsExpr(Expression),
     SetDefinition(String, String, Expression),
+    FunctionRestriction(String, Expression, Array<ParameterRestriction>),
     Invalid
 }
+
