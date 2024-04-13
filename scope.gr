@@ -6,6 +6,14 @@ from "option" include Option
 
 use Map.*
 
+provide enum UserFunc {
+    Arity0(() => Number),
+    Arity1(Number => Number),
+    Arity2((Number, Number) => Number),
+    Arity3((Number, Number, Number) => Number),
+    ArityN(Array<Number> => Number)
+}
+
 provide record rec Scope {
     variables: Map<String, Number>,
     functions: Map<String, (Array<Tree.Expression>) => Number>,

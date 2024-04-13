@@ -88,14 +88,17 @@ and parseFunctionParameterRestriction = (state) => {
     
     consume(state, Colon)
 
-    let parameterName = consume(state, Identifier)
+    let parameterName = consume(state, Identifier).text
 
     consume(state, In)
 
-    let set = consume(state, Identifier)
+    let set = consume(state, Identifier).text
     let funcDefinition = parseExpression(state)
 
-    Tree.FunctionRestriction(funcName, funcDefinition, [> Tree.ParameterRestriction(parameterName, set)])
+    Tree.FunctionRestriction(funcName, funcDefinition, [> {
+        parameterName: parameterName, 
+        set: set
+    }])
 }
 and parseAtom = state => {
     let mut token = nextToken(state)
