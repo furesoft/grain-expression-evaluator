@@ -11,6 +11,8 @@ from "option" include Option
 use Map.*
 use Scope.*
 
+use Tree.{type ParameterRestriction}
+
 provide let rootScope = Scope.make()
 
 let evaluateBool = (cond) => match(cond) {
@@ -25,6 +27,12 @@ let isNumberInSet = (set, value) => {
     }
 }
 
+let getParameterRestriction = (name, restrictions) => {
+    Array.find(x => {
+        x.parameterName == name
+    }, restrictions)
+}
+
 let rec visit = (tree, scope) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
@@ -36,7 +44,7 @@ let rec visit = (tree, scope) => {
         Tree.AbsExpr(inner) => visitAbs(inner, scope),
         Tree.SetDefinition(name, parent, check) => visitSetDefinition(name, parent, check, scope),
         Tree.FunctionDefinition(name, params, definition, restrictions) => visitFunctionDefinition(name, params, definition, restrictions, scope),
-        Tree.FunctionRestriction(name, restrictions, def) => visitFunctionRestriction(name, restrictions, def),
+        Tree.FunctionRestriction(name, restrictions, def) => visitFunctionRestriction(name, restrictions, def, scope),
         _ => 0
     }
 }
@@ -52,7 +60,23 @@ and visitFunctionDefinition = (name, params, definition, restrictions, scope) =>
         Array.forEachi((p, i) => {
             match(p){
                 Tree.VariableReferenceExpression(pName) => {
-                    Scope.setVariable(pName, evaluatedArgs[i], funcScope)
+                    let value = evaluatedArgs[i]
+                    let restriction = getParameterRestriction(pName, restrictions)
+                    
+                    if(Option.isSome(restriction)) {
+                        let r = Option.unwrap(restriction)
+
+                        let setCheck = match(Scope.getSet(r.set, scope)) {
+                                                Some(parentSet) => parentSet,
+                                                None => fail("Set " ++ r.set ++ " not found")
+                                            }
+
+                        if(!setCheck(value)) {
+                            fail(toString(value) ++ " does not met requierements. It's not in set " ++ r.set)
+                        }
+                    }
+
+                    Scope.setVariable(pName, value, funcScope)
                 },
                 _ => fail("error")
             }
@@ -131,9 +155,16 @@ and visitVariableRef = (id, scope) => {
         None => fail("Variable " ++ id ++ " not found")
     }
 }
-and visitFunctionRestriction = (funcName, restrictions, def) => {
-    
-    42
+and visitFunctionRestriction = (funcName, def, restrictions, scope) => {
+   let tmp = match(def) {
+        Tree.FunctionDefinition(name, params, def, r) => {
+            Tree.FunctionDefinition(name, params, def, restrictions)
+        },
+        _ => Tree.Invalid()
+    }
+    visit(tmp, scope)
+
+    0
 }
 and visitVariableBinding = (name, value, scope) => {
     match(name) {

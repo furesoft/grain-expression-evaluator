@@ -38,7 +38,7 @@ provide enum rec Expression {
     AbsExpr(Expression),
     SetDefinition(String, String, Expression),
     FunctionRestriction(String, Expression, Array<ParameterRestriction>),
-    FunctionDefinition(String, Array<Expression>, Expression, Array<Expression>),
+    FunctionDefinition(String, Array<Expression>, Expression, Array<ParameterRestriction>),
     Invalid
 }
 
