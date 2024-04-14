@@ -215,7 +215,12 @@ and parseExpression = (state) => {
     let left = parseAdditive(state);
 
     if(expects(state, Equals)) {
-        return Tree.BinaryExpression(left, Tree.Assignment, parseExpression(state))
+        let definition = parseExpression(state)
+
+        return match(left) {
+            Tree.FunctionCallExpression(funcName, params) => Tree.FunctionDefinition(funcName, params, definition, [>]),
+            _ => Tree.BinaryExpression(left, Tree.Assignment, definition)
+        }
     }
 
     return left;

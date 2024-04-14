@@ -17,8 +17,9 @@ from "wasi/file" include File
 Scope.setVariable("n", 5, Evaluator.rootScope)
 
 //Evaluator.eval("yeah(x) = n + x")
-Evaluator.eval("set even in N = x % 2 == 0")
-Evaluator.eval("f: x in even f(x) = x + 1")
+//Evaluator.eval("set even in N = x % 2 == 0")
+//Evaluator.eval("f: x in even f(x) = x + 1")
+Evaluator.eval("f(x) = x * x")
 print(Evaluator.eval("f(4)")) //should return 5
 print(Evaluator.eval("f(5)")) //should fail with error because number is not in set even
 

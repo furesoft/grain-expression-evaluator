@@ -35,9 +35,33 @@ let rec visit = (tree, scope) => {
         Tree.PreUnaryExpression(op, expr) => visitPreUnary(op, expr, scope),
         Tree.AbsExpr(inner) => visitAbs(inner, scope),
         Tree.SetDefinition(name, parent, check) => visitSetDefinition(name, parent, check, scope),
+        Tree.FunctionDefinition(name, params, definition, restrictions) => visitFunctionDefinition(name, params, definition, restrictions, scope),
         Tree.FunctionRestriction(name, restrictions, def) => visitFunctionRestriction(name, restrictions, def),
         _ => 0
     }
+}
+and visitFunctionDefinition = (name, params, definition, restrictions, scope) => {
+    Scope.setFunction(name, (args) => {
+        if(Array.length(args) != Array.length(params)) {
+            fail("argument mismatch for function " ++ name)
+        }
+
+        let funcScope = Scope.fromParent(scope)
+        let evaluatedArgs = Array.map(arg => visit(arg, funcScope), args)
+                
+        Array.forEachi((p, i) => {
+            match(p){
+                Tree.VariableReferenceExpression(pName) => {
+                    Scope.setVariable(pName, evaluatedArgs[i], funcScope)
+                },
+                _ => fail("error")
+            }
+        }, params)
+
+        visit(definition, funcScope)
+    }, scope)
+
+    0
 }
 and visitAbs = (inner, scope) => {
     let visitedInner = visit(inner, scope)
@@ -119,28 +143,6 @@ and visitVariableBinding = (name, value, scope) => {
 
             visitedValue
         },
-        Tree.FunctionCallExpression(name, parameter) => {
-            Scope.setFunction(name, (args) => {
-                if(Array.length(args) != Array.length(parameter)) {
-                    fail("argument mismatch for function " ++ name)
-                }
-
-                let funcScope = Scope.fromParent(scope)
-                let evaluatedArgs = Array.map(arg => visit(arg, funcScope), args)
-                
-                Array.forEachi((p, i) => {
-                    match(p){
-                        Tree.VariableReferenceExpression(pName) => {
-                            Scope.setVariable(pName, evaluatedArgs[i], funcScope)
-                        },
-                        _ => fail("error")
-                    }
-                }, parameter)
-
-                visit(value, funcScope)
-            }, scope)
-            0
-        },
         _ => 0
     }
 }
@@ -161,6 +163,6 @@ Scope.setFunction("power", (args) => {
 
 provide let eval = (input) => {
     let tree = Parser.parse(input)
-    
+
     visit(tree, rootScope)
 }
