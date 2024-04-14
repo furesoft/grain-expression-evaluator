@@ -20,6 +20,8 @@ Scope.setVariable("n", 5, Evaluator.rootScope)
 Evaluator.eval("set even in N = x % 2 == 0")
 Evaluator.eval("f: x in even f(x) = x + 1")
 print(Evaluator.eval("f(4)")) //should return 5
+print(Evaluator.eval("f(6)")) //should return 7
+print(Evaluator.eval("power(2, 5)")) //should return 32
 
 //ToDo:
 // implement function restriction

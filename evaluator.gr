@@ -11,7 +11,8 @@ from "option" include Option
 use Map.*
 use Scope.*
 
-use Tree.{type ParameterRestriction}
+use Tree.{ type ParameterRestriction }
+use Scope.{ type UserFunc }
 
 provide let rootScope = Scope.make()
 
@@ -49,13 +50,13 @@ let rec visit = (tree, scope) => {
     }
 }
 and visitFunctionDefinition = (name, params, definition, restrictions, scope) => {
-    Scope.setFunction(name, (args) => {
+    Scope.setFunction(name, ArityN((args) => {
         if(Array.length(args) != Array.length(params)) {
             fail("argument mismatch for function " ++ name)
         }
 
         let funcScope = Scope.fromParent(scope)
-        let evaluatedArgs = Array.map(arg => visit(arg, funcScope), args)
+        let evaluatedArgs = args
                 
         Array.forEachi((p, i) => {
             match(p){
@@ -83,7 +84,7 @@ and visitFunctionDefinition = (name, params, definition, restrictions, scope) =>
         }, params)
 
         visit(definition, funcScope)
-    }, scope)
+    }), scope)
 
     0
 }
@@ -99,8 +100,19 @@ and visitPreUnary = (op, expr, scope) => {
     }
 }
 and visitFunctionCall = (name, args, scope) => {
+    let funcScope = Scope.fromParent(scope)
+    let evaluatedArgs = Array.map(arg => visit(arg, funcScope), args)
+
     match(Scope.getFunction(name, scope)) {
-        Some(callback) => callback(args),
+        Some(callback) => {
+            match(callback) {
+                Arity0(f) => f(),
+                Arity1(f) => f(evaluatedArgs[0]),
+                Arity2(f) => f(evaluatedArgs[0], evaluatedArgs[1]),
+                Arity3(f) => f(evaluatedArgs[0], evaluatedArgs[1], evaluatedArgs[2]),
+                ArityN(f) => f(evaluatedArgs)
+            }
+        },
         None => fail("function " ++ name ++ " not found")
     }
 }
@@ -184,13 +196,7 @@ Scope.defineSet("N", value => Number.isInteger(value) && value >= 0, rootScope)
 Scope.defineSet("Z", value => Number.isInteger(value), rootScope)
 Scope.defineSet("Q", value => Number.isFloat(value), rootScope)
 
-Scope.setFunction("power", (args) => {
-    let scope = Scope.fromParent(rootScope)
-    let base = visit(args[0], scope)
-    let exponent = visit(args[1], scope)
-    
-    base ** exponent
-}, rootScope)
+Scope.setFunction("power", Arity2((base, exponent) => base ** exponent), rootScope)
 
 provide let eval = (input) => {
     let tree = Parser.parse(input)

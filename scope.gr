@@ -16,7 +16,7 @@ provide enum UserFunc {
 
 provide record rec Scope {
     variables: Map<String, Number>,
-    functions: Map<String, (Array<Tree.Expression>) => Number>,
+    functions: Map<String, UserFunc>,
     parent: Option<Scope>,
     sets: Map<String, (Number) => Bool>
 }
