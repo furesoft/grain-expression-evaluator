@@ -108,10 +108,26 @@ and parseParameterRestriction = state => {
 }
 and parseSetReference = state => {
     let set = consume(state, Identifier).text
+    let modifier = parseSetModifier(state)
 
     {
         name: set,
-        modifier: None
+        modifier: modifier
+    }
+}
+and parseSetModifier = state => {
+    if(expects(state, Plus)) {
+        Some(WithoutZero)
+    }
+    else if(expects(state, Backslash)) {
+        let value = parseExpression(state)
+
+        Some({
+            Without(value)
+        })
+    }
+    else {
+        None
     }
 }
 and parseAtom = state => {
@@ -130,13 +146,16 @@ and parseAtom = state => {
         return Tree.AbsExpr(inner)
     }
     else if(token.kind == Number) {
-        return match(Number.parse(token.text)) {
-            Ok(number) => Tree.NumberExpression(number),
-            Err(err) => Tree.Invalid()
-        }
+        return parseNumber(token)
     }
     else {
         return Tree.Invalid()
+    }
+}
+and parseNumber = token => {
+    match(Number.parse(token.text)) {
+        Ok(number) => Tree.NumberExpression(number),
+        Err(err) => Tree.Invalid()
     }
 }
 and parseFunctionCall = (state) => {
@@ -168,7 +187,7 @@ and parseSetDefinition = (state) => {
 
     consume(state, In)
 
-    let parentSet = consume(state, Identifier).text
+    let parentSet = parseSetReference(state)
     
     consume(state, Equals)
     let check = parseExpression(state)

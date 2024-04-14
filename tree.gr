@@ -22,21 +22,6 @@ provide enum BinaryOperator {
     Or,
 }
 
-provide enum SetModifier {
-    Without(Number),
-    WithZero,
-}
-
-provide record SetReference {
-    name: String,
-    modifier: Option<SetModifier>
-}
-
-provide record ParameterRestriction {
-    parameterName: String,
-    set: SetReference
-}
-
 provide enum rec Expression {
     UnaryExpression(UnaryOperator, Expression),
     BinaryExpression(Expression, BinaryOperator, Expression),
@@ -46,9 +31,19 @@ provide enum rec Expression {
     FunctionCallExpression(String, Array<Expression>),
     PreUnaryExpression(String, Expression),
     AbsExpr(Expression),
-    SetDefinition(String, String, Expression),
+    SetDefinition(String, SetReference, Expression),
     FunctionRestriction(String, Expression, Array<ParameterRestriction>),
     FunctionDefinition(String, Array<Expression>, Expression, Array<ParameterRestriction>),
     Invalid
+} and provide record ParameterRestriction {
+    parameterName: String,
+    set: SetReference
 }
-
+and provide record SetReference {
+    name: String,
+    modifier: Option<SetModifier>
+}
+and provide enum SetModifier {
+    Without(Expression),
+    WithoutZero,
+}

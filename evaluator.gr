@@ -12,6 +12,7 @@ use Map.*
 use Scope.*
 
 use Tree.{ type ParameterRestriction }
+use Tree.{ type SetModifier }
 use Scope.{ type UserFunc }
 
 provide let rootScope = Scope.make()
@@ -34,6 +35,22 @@ let getParameterRestriction = (name, restrictions) => {
     }, restrictions)
 }
 
+let evaluateSetModifier = (value, modifier) => {
+    match(modifier) {
+        Some(WithoutZero) => value != 0,
+        Some(Without(expr)) => {
+            match(expr) {
+                Tree.NumberExpression(number) => {
+                    value != number
+                },
+                _ => false
+            }
+        },
+        None => true,
+        _ => fail("unknown set modifier")
+    }
+}
+
 let rec visit = (tree, scope) => {
     match(tree) {
         Tree.NumberExpression(num) => num,
@@ -52,7 +69,7 @@ let rec visit = (tree, scope) => {
 and visitFunctionDefinition = (name, params, definition, restrictions, scope) => {
     Scope.setFunction(name, ArityN((args) => {
         if(Array.length(args) != Array.length(params)) {
-            fail("argument mismatch for function " ++ name)
+            fail("argument mismatch for function " ++ name ++ ". Expected " ++ toString(Array.length(params)) ++ " got " ++ toString(Array.length(args)))
         }
 
         let funcScope = Scope.fromParent(scope)
@@ -72,8 +89,10 @@ and visitFunctionDefinition = (name, params, definition, restrictions, scope) =>
                                                 None => fail("Set " ++ r.set.name ++ " not found")
                                             }
 
-                        if(!setCheck(value)) {
-                            fail(toString(value) ++ " does not met requierements. It's not in set " ++ r.set.name)
+                        let evaluatedSetModifier = evaluateSetModifier(value, r.set.modifier)
+
+                        if(!setCheck(value) && !evaluatedSetModifier) {
+                            fail(name ++ ": " ++ pName ++ "=" ++ toString(value) ++ " does not met requierements. It's not in set " ++ r.set.name)
                         }
                     }
 
@@ -141,9 +160,9 @@ and visitBinary = (left, op, right, scope) => {
 }
 and visitSetDefinition = (name, parent, check, scope) => {
     Scope.defineSet(name, value => {
-        let parentSetCheck = match(Scope.getSet(parent, scope)) {
+        let parentSetCheck = match(Scope.getSet(parent.name, scope)) {
             Some(parentSet) => parentSet,
-            None => fail("Set " ++ parent ++ " not found")
+            None => fail("Set " ++ parent.name ++ " not found")
         }
         let parentEvaluated = parentSetCheck(value)
         
@@ -156,7 +175,7 @@ and visitSetDefinition = (name, parent, check, scope) => {
             _ => false
         }
 
-        result && parentEvaluated
+        result && parentEvaluated && !evaluateSetModifier(value, parent.modifier)
     }, scope)
 
     0
