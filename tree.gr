@@ -22,9 +22,19 @@ provide enum BinaryOperator {
     Or,
 }
 
+provide enum SetModifier {
+    Without(Number),
+    WithZero,
+}
+
+provide record SetReference {
+    name: String,
+    modifier: Option<SetModifier>
+}
+
 provide record ParameterRestriction {
     parameterName: String,
-    set: String
+    set: SetReference
 }
 
 provide enum rec Expression {

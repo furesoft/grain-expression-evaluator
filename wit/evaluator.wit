@@ -1,0 +1,9 @@
+package furesoft:math-evaluator@0.1.0;
+
+interface eval {
+    eval: func(input: string) -> f64;
+}
+
+world evaluator {
+    import eval;
+}
